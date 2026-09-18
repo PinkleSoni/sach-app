@@ -36,6 +36,16 @@ const ICONS = {
   ),
   play: <Path d="M7 4l13 8-13 8z" />,
   pause: <Path d="M8 5v14M16 5v14" />,
+  home: <Path d="M3 11l9-7 9 7v9h-6v-6H9v6H3z" />,
+  chat: <Path d="M4 5h16v11H9l-5 4z" />,
+  user: (
+    <>
+      <Circle cx="12" cy="8" r="4" />
+      <Path d="M4 21c1-4 4-6 8-6s7 2 8 6" />
+    </>
+  ),
+  scan: <Path d="M3 7V4h3M18 4h3v3M21 17v3h-3M6 20H3v-3M7 12h10" />,
+  arrow: <Path d="M5 12h14M13 6l6 6-6 6" />,
   search: (
     <>
       <Circle cx="11" cy="11" r="7" />

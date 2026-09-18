@@ -1,7 +1,15 @@
 # Sach
 
 Check any beauty product against your own fit: allergens, values, skin and hair.
-Built from the V2 design canvas (camera-first check, personal match, review chat).
+Built from the V2 design canvas: welcome and set-your-fit onboarding, a Home screen with a scan hero, camera-first check, personal match, and a review chat.
+
+## Screens
+
+- **Welcome / Set your fit:** first-run onboarding (Skip is allowed). Replay it from the My fit tab.
+- **Home, Reviews, History, My fit:** the four tabs, with the raised scan button in the middle.
+- **Check:** camera barcode scan, gallery scan, name search.
+- **Result:** match %, dealbreakers, ingredients that matter, better alternatives, reviews from people like you.
+- **Review:** three-tap chat with photos and voice notes.
 
 ## Run it
 

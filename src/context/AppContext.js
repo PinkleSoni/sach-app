@@ -67,8 +67,8 @@ export function AppProvider({ children }) {
   );
 
   const value = useMemo(
-    () => ({ ready, profile, setProfile, recents, addRecent, addReview, wishlist, toggleWishlist, helpful, toggleHelpful, reviewsFor }),
-    [ready, profile, setProfile, recents, addRecent, addReview, wishlist, toggleWishlist, helpful, toggleHelpful, reviewsFor]
+    () => ({ ready, profile, setProfile, myReviews, recents, addRecent, addReview, wishlist, toggleWishlist, helpful, toggleHelpful, reviewsFor }),
+    [ready, profile, setProfile, myReviews, recents, addRecent, addReview, wishlist, toggleWishlist, helpful, toggleHelpful, reviewsFor]
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

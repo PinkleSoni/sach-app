@@ -97,7 +97,7 @@ export default function ResultScreen({ route, navigation }) {
               </View>
             </View>
             {!m.hasProfile && (
-              <Btn label="Set your fit" onPress={() => navigation.navigate('Profile')} style={s.setFit}>
+              <Btn label="Set your fit" onPress={() => navigation.popTo('Tabs', { screen: 'Fit' })} style={s.setFit}>
                 <Text style={s.setFitText}>Set your fit</Text>
               </Btn>
             )}

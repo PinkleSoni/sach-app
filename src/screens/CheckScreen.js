@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Linking, Text, TextInput, View, StyleSheet, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -12,6 +12,7 @@ import { getProductByBarcode, searchProducts, allProducts } from '../lib/catalog
 import { matchProduct, profileSummary } from '../lib/match';
 import { Btn } from '../components/ui';
 import Icon from '../components/Icon';
+import Glow from '../components/Glow';
 import { colors, fonts } from '../theme';
 
 const MODES = ['Barcode', 'Label', 'Name'];
@@ -22,12 +23,12 @@ const HINTS = {
 };
 const BARCODES = ['ean13', 'ean8', 'upc_a', 'upc_e'];
 
-export default function CheckScreen({ navigation }) {
+export default function CheckScreen({ navigation, route }) {
   const insets = useSafeAreaInsets();
   const focused = useIsFocused();
   const { profile, addRecent } = useApp();
   const [permission, requestPermission] = useCameraPermissions();
-  const [mode, setMode] = useState('Barcode');
+  const [mode, setMode] = useState(route.params?.mode || 'Barcode');
   const [torch, setTorch] = useState(false);
   const [found, setFound] = useState(null); // { product } | { unknown }
   const [notice, setNotice] = useState('');
@@ -63,6 +64,21 @@ export default function CheckScreen({ navigation }) {
     }
   };
 
+  useEffect(() => {
+    if (route.params?.mode) setMode(route.params.mode);
+  }, [route.params?.mode]);
+
+  useEffect(() => {
+    if (route.params?.autoGallery) {
+      navigation.setParams({ autoGallery: false });
+      pickFromGallery();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [route.params?.autoGallery]);
+
+  const goHome = () => navigation.popTo('Tabs', { screen: 'Home' });
+  const editFit = () => navigation.popTo('Tabs', { screen: 'Fit' });
+
   const shutter = () => {
     if (found?.product) return open(found.product);
     if (mode === 'Label') return setNotice('Label reading is coming soon. Scan the barcode or search by name for now.');
@@ -85,12 +101,16 @@ export default function CheckScreen({ navigation }) {
           onBarcodeScanned={scanning ? ({ data }) => handleCode(data) : undefined}
         />
       )}
+      {!cameraOn && <Glow id="checkGlow" inner="#2A3A31" outer={colors.night} cx={0.5} cy={0.38} rx={1.2} ry={0.7} />}
       <View style={s.scrim} pointerEvents="none" />
 
       <View style={[s.top, { paddingTop: insets.top + 8 }]}>
-        <Btn label="Edit your fit profile" onPress={() => navigation.navigate('Profile')} style={s.fitPill}>
-          <View style={s.fitDot}><Text style={s.fitDotText}>P</Text></View>
-          <Text style={s.fitText} numberOfLines={1}>Checking for: {profileSummary(p)}</Text>
+        <Btn label="Back to home" onPress={goHome} style={s.round}>
+          <Icon name="back" size={22} color={colors.cream} strokeWidth={2.2} />
+        </Btn>
+        <Btn label="Edit your fit profile" onPress={editFit} style={s.fitPill}>
+          <View style={s.fitDot} />
+          <Text style={s.fitText} numberOfLines={1}>{profileSummary(p)}</Text>
         </Btn>
         <Btn label={torch ? 'Turn off torch' : 'Turn on torch'} onPress={() => setTorch((t) => !t)} style={[s.round, torch && { backgroundColor: colors.amber }]}>
           <Icon name="bolt" size={20} color={torch ? colors.forest : colors.cream} />
@@ -187,7 +207,7 @@ export default function CheckScreen({ navigation }) {
           ) : (
             <View style={{ width: 76 }} />
           )}
-          <Btn label="Recent checks" onPress={() => navigation.navigate('Recent')} style={s.square}><Icon name="clock" color={colors.cream} /></Btn>
+          <Btn label="Recent checks" onPress={() => navigation.popTo('Tabs', { screen: 'History' })} style={s.square}><Icon name="clock" color={colors.cream} /></Btn>
         </View>
       </View>
     </View>
@@ -224,10 +244,9 @@ function FoundCard({ product, profile, onOpen, onClose }) {
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.night },
   scrim: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(16,26,21,0.35)' },
-  top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, paddingHorizontal: 16 },
-  fitPill: { flexShrink: 1, minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 8, paddingRight: 14, paddingLeft: 6, borderRadius: 999, backgroundColor: 'rgba(245,239,228,0.16)' },
-  fitDot: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.amber, alignItems: 'center', justifyContent: 'center' },
-  fitDotText: { fontFamily: fonts.bold, color: colors.forest },
+  top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, paddingHorizontal: 16 },
+  fitPill: { flex: 1, minHeight: 44, minWidth: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingHorizontal: 14, borderRadius: 999, backgroundColor: 'rgba(245,239,228,0.16)' },
+  fitDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.amber },
   fitText: { flexShrink: 1, fontFamily: fonts.semibold, fontSize: 14, color: colors.cream },
   round: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(245,239,228,0.16)' },
   middle: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 18, paddingHorizontal: 24 },

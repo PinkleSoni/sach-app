@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
 import { Figtree_400Regular } from '@expo-google-fonts/figtree/400Regular';
@@ -13,28 +14,47 @@ import { Figtree_700Bold } from '@expo-google-fonts/figtree/700Bold';
 import { Figtree_800ExtraBold } from '@expo-google-fonts/figtree/800ExtraBold';
 import { YoungSerif_400Regular } from '@expo-google-fonts/young-serif/400Regular';
 import { AppProvider, useApp } from './src/context/AppContext';
+import TabBar from './src/components/TabBar';
+import WelcomeScreen from './src/screens/WelcomeScreen';
+import FitSetupScreen from './src/screens/FitSetupScreen';
+import HomeScreen from './src/screens/HomeScreen';
+import ReviewsScreen from './src/screens/ReviewsScreen';
+import HistoryScreen from './src/screens/HistoryScreen';
 import CheckScreen from './src/screens/CheckScreen';
 import ResultScreen from './src/screens/ResultScreen';
 import ReviewScreen from './src/screens/ReviewScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
-import RecentScreen from './src/screens/RecentScreen';
 import { colors } from './src/theme';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
+
+// Home, Reviews, History and My fit share one bar with the raised scan button.
+function Tabs() {
+  return (
+    <Tab.Navigator tabBar={(props) => <TabBar {...props} />} screenOptions={{ headerShown: false }}>
+      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Reviews" component={ReviewsScreen} />
+      <Tab.Screen name="History" component={HistoryScreen} />
+      <Tab.Screen name="Fit" component={ProfileScreen} />
+    </Tab.Navigator>
+  );
+}
 
 function Root() {
   const { ready, profile } = useApp();
   if (!ready) return null;
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName={profile == null ? 'Profile' : 'Check'} screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.cream } }}>
+      <Stack.Navigator initialRouteName={profile == null ? 'Welcome' : 'Tabs'} screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.cream } }}>
+        <Stack.Screen name="Welcome" component={WelcomeScreen} />
+        <Stack.Screen name="FitSetup" component={FitSetupScreen} />
+        <Stack.Screen name="Tabs" component={Tabs} />
         <Stack.Screen name="Check" component={CheckScreen} />
         <Stack.Screen name="Result" component={ResultScreen} />
         <Stack.Screen name="Review" component={ReviewScreen} />
-        <Stack.Screen name="Profile" component={ProfileScreen} />
-        <Stack.Screen name="Recent" component={RecentScreen} options={{ presentation: 'modal' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
