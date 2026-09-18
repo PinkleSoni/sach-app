@@ -3,6 +3,16 @@
 Check any beauty product against your own fit: allergens, values, skin and hair.
 Built from the V2 design canvas: welcome and set-your-fit onboarding, a Home screen with a scan hero, camera-first check, personal match, and a review chat.
 
+<p>
+  <img src="docs/screenshots/1-welcome.png" width="180" alt="Welcome screen">
+  <img src="docs/screenshots/2-set-your-fit.png" width="180" alt="Set your fit screen">
+  <img src="docs/screenshots/3-home.png" width="180" alt="Home screen with scan button">
+  <img src="docs/screenshots/4-result.png" width="180" alt="Match result with dealbreaker and ingredients">
+  <img src="docs/screenshots/5-review.png" width="180" alt="Three-tap review chat">
+</p>
+
+_Screenshots are from the web preview of the app. On a phone it runs in Expo Go with a working camera._
+
 ## Screens
 
 - **Welcome / Set your fit:** first-run onboarding (Skip is allowed). Replay it from the My fit tab.
@@ -57,3 +67,7 @@ Open the update on your [expo.dev](https://expo.dev) project page and use its **
 4. Test build: `eas build --profile preview --platform all`
 5. Store build: `eas build --profile production --platform all`, then `eas submit --platform ios` / `android`.
 6. Store listing needs a privacy policy URL: camera and photos are read on-device, nothing is uploaded.
+
+## Licence
+
+No licence has been chosen yet, so all rights are reserved. You can read the code, but you don't have permission to reuse it.
