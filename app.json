@@ -1,0 +1,59 @@
+{
+  "expo": {
+    "name": "Sach",
+    "slug": "sach",
+    "scheme": "sach",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "app.sach.fitcheck",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "app.sach.fitcheck",
+      "adaptiveIcon": {
+        "backgroundColor": "#1C2B22",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      }
+    },
+    "plugins": [
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#1C2B22",
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 160
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Sach uses the camera to scan product barcodes and to take review photos.",
+          "recordAudioAndroid": false
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Sach reads photos you pick to scan a barcode or attach to a review.",
+          "cameraPermission": "Sach uses the camera to take review photos."
+        }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Sach uses the microphone so you can record a voice note with your review."
+        }
+      ],
+      "expo-asset"
+    ]
+  }
+}
