@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Linking, Text, TextInput, View, StyleSheet, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -33,6 +33,14 @@ export default function CheckScreen({ navigation, route }) {
   const [found, setFound] = useState(null); // { product } | { unknown }
   const [notice, setNotice] = useState('');
   const [query, setQuery] = useState('');
+  const [looking, setLooking] = useState(false); // a barcode lookup is in flight
+  const [nameResults, setNameResults] = useState(() => allProducts());
+  const [searching, setSearching] = useState(false); // a name search is in flight
+  // True from the very first render when we arrived here to auto-open the
+  // gallery (Home's "Upload photo"), so the live camera never mounts and
+  // fights the gallery picker for the camera hardware at the same time.
+  const [autoGalleryPending, setAutoGalleryPending] = useState(() => !!route.params?.autoGallery);
+  const lookupInFlight = useRef(false); // guards against the scanner firing handleCode for the same barcode multiple times before the first lookup resolves
 
   const p = profile || {};
   const open = useCallback(
@@ -44,11 +52,21 @@ export default function CheckScreen({ navigation, route }) {
     [addRecent, navigation]
   );
 
-  const handleCode = useCallback((code) => {
-    const product = getProductByBarcode(code);
-    Haptics.notificationAsync(product ? Haptics.NotificationFeedbackType.Success : Haptics.NotificationFeedbackType.Warning).catch(() => {});
+  const handleCode = useCallback(async (code) => {
+    if (lookupInFlight.current) return;
+    lookupInFlight.current = true;
     setNotice('');
-    setFound(product ? { product } : { unknown: code });
+    setLooking(true);
+    try {
+      const product = await getProductByBarcode(code);
+      Haptics.notificationAsync(product ? Haptics.NotificationFeedbackType.Success : Haptics.NotificationFeedbackType.Warning).catch(() => {});
+      setFound(product ? { product } : { unknown: code });
+    } catch {
+      setNotice('Could not look that up. Check your connection and try again.');
+    } finally {
+      lookupInFlight.current = false;
+      setLooking(false);
+    }
   }, []);
 
   const pickFromGallery = async () => {
@@ -57,16 +75,44 @@ export default function CheckScreen({ navigation, route }) {
       const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 1 });
       if (res.canceled || !res.assets?.[0]) return;
       const hits = await scanFromURLAsync(res.assets[0].uri, BARCODES);
-      if (hits.length) handleCode(hits[0].data);
+      if (hits.length) await handleCode(hits[0].data);
       else setNotice('No barcode found in that photo. Try a closer, sharper shot.');
     } catch {
       setNotice('Could not read that photo. Try another one.');
+    } finally {
+      setAutoGalleryPending(false);
     }
   };
 
   useEffect(() => {
     if (route.params?.mode) setMode(route.params.mode);
   }, [route.params?.mode]);
+
+  // Name search: local catalog first (instant), then — for a query specific
+  // enough to be worth a network call — real products from Open Beauty
+  // Facts too. Debounced so it doesn't fire on every keystroke.
+  useEffect(() => {
+    if (mode !== 'Name') return undefined;
+    const q = query.trim();
+    if (!q) {
+      setNameResults(allProducts());
+      setSearching(false);
+      return undefined;
+    }
+    let cancelled = false;
+    setSearching(true);
+    const t = setTimeout(async () => {
+      const results = await searchProducts(q);
+      if (!cancelled) {
+        setNameResults(results);
+        setSearching(false);
+      }
+    }, 350);
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+  }, [query, mode]);
 
   useEffect(() => {
     if (route.params?.autoGallery) {
@@ -85,9 +131,8 @@ export default function CheckScreen({ navigation, route }) {
     setNotice('Point the camera at a barcode. It scans on its own.');
   };
 
-  const cameraOn = focused && permission?.granted && mode !== 'Name';
-  const scanning = cameraOn && mode === 'Barcode' && !found;
-  const nameResults = query.trim() ? searchProducts(query) : allProducts();
+  const cameraOn = focused && permission?.granted && mode !== 'Name' && !autoGalleryPending;
+  const scanning = cameraOn && mode === 'Barcode' && !found && !looking;
 
   return (
     <View style={s.root}>
@@ -133,7 +178,7 @@ export default function CheckScreen({ navigation, route }) {
             />
           </View>
           <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ gap: 8, paddingBottom: 16 }}>
-            <Text style={s.listLabel}>{query.trim() ? `${nameResults.length} found` : 'Try one of these'}</Text>
+            <Text style={s.listLabel}>{searching ? 'Searching…' : query.trim() ? `${nameResults.length} found` : 'Try one of these'}</Text>
             {nameResults.map((pr) => {
               const m = matchProduct(pr, p);
               return (
@@ -170,7 +215,7 @@ export default function CheckScreen({ navigation, route }) {
                 </Svg>
                 <View style={s.scanLine} />
               </View>
-              <Text style={s.hint} accessibilityLiveRegion="polite">{notice || HINTS[mode]}</Text>
+              <Text style={s.hint} accessibilityLiveRegion="polite">{notice || (looking ? 'Checking…' : HINTS[mode])}</Text>
             </>
           )}
         </View>

@@ -82,6 +82,11 @@ export default function ResultScreen({ route, navigation }) {
           <View style={{ gap: 4 }}>
             <Eyebrow>{product.brand} · {product.category}</Eyebrow>
             <Text style={s.title} accessibilityRole="header">{product.name}</Text>
+            {product.source === 'openbeautyfacts' && (
+              <Text style={s.attribution}>
+                Ingredient data from <Text style={s.attributionLink} onPress={() => Linking.openURL(`https://world.openbeautyfacts.org/product/${product.barcode}`)}>Open Beauty Facts</Text>, a community-run database. It can be incomplete.
+              </Text>
+            )}
           </View>
 
           <View style={s.matchCard}>
@@ -239,6 +244,8 @@ const s = StyleSheet.create({
   navBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   body: { gap: 26, paddingHorizontal: 20, paddingTop: 4 },
   title: { fontFamily: fonts.display, fontSize: 26, lineHeight: 29, letterSpacing: -0.3, color: colors.forest },
+  attribution: { fontFamily: fonts.regular, fontSize: 12, lineHeight: 17, color: colors.muted, marginTop: 2 },
+  attributionLink: { fontFamily: fonts.semibold, color: colors.green },
   matchCard: { borderRadius: 28, backgroundColor: colors.forest, padding: 22, gap: 18 },
   ringBox: { width: 116, height: 116, alignItems: 'center', justifyContent: 'center' },
   score: { fontFamily: fonts.display, fontSize: 34, letterSpacing: -0.6, color: colors.cream },

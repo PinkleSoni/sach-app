@@ -54,6 +54,11 @@ export function matchProduct(product, profile) {
 
   Object.entries(MUST_KEYS).forEach(([label, key]) => {
     if (!profile[label]) return;
+    // product.is[key] is undefined when we genuinely don't know (common for
+    // real scanned products — ingredient data can't tell you cruelty-free
+    // or pregnancy-safe status). Unknown isn't the same as "fails this",
+    // so it's left out of the score instead of dragging it down unfairly.
+    if (product.is[key] === undefined) return;
     const yes = !!product.is[key];
     checks.push({
       label,

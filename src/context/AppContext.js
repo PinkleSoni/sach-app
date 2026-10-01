@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useState, useCallback } from 'react';
 import * as storage from '../lib/storage';
 import { SEED_REVIEWS } from '../data/reviews';
+import { hydrateFetchedProducts, allFetchedProducts, getProduct } from '../lib/catalog';
 
 const Ctx = createContext(null);
 export const useApp = () => useContext(Ctx);
@@ -15,6 +16,7 @@ export function AppProvider({ children }) {
 
   useEffect(() => {
     storage.loadAll().then((s) => {
+      hydrateFetchedProducts(s.fetchedProducts);
       setProfileState(s.profile);
       setMyReviews(s.reviews);
       setRecents(s.recents);
@@ -35,6 +37,12 @@ export function AppProvider({ children }) {
       storage.saveRecents(next);
       return next;
     });
+    // If this was a real product looked up from Open Beauty Facts (not in
+    // our own catalog), remember it past this session so History and
+    // Reviews can still resolve it by id later.
+    if (getProduct(productId)?.source === 'openbeautyfacts') {
+      storage.saveFetchedProducts(allFetchedProducts());
+    }
   }, []);
 
   const addReview = useCallback((review) => {
