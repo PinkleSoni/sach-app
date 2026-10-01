@@ -44,18 +44,22 @@ The `exp://…` address in the terminal only works while the dev server is runni
 
 ### A link that opens in Expo Go itself
 
-The live demo above is a web build — close, but it's not the real app (no live camera). For a link that opens the actual app inside Expo Go on a phone, without your computer running, publish with [EAS Update](https://docs.expo.dev/eas-update/getting-started/). It needs a free Expo account:
+The live demo above is a web build — close, but it's not the real app (no live camera). The project is published with [EAS Update](https://docs.expo.dev/eas-update/getting-started/) under the `pinkle0402` Expo account, which gives a link that opens the real app in Expo Go, on a phone, without your computer running:
+
+1. Open [the latest update on expo.dev](https://expo.dev/accounts/pinkle0402/projects/sach/updates/555a5658-02f8-4756-bd69-e2c00e95791d) (sign in with the `pinkle0402` account) and use its **Open in Expo Go** button or QR code — this is the reliable way in, since that page builds the link for you.
+2. Or, in Expo Go, open the profile tab → **Enter URL manually**, and paste one of these manifest links directly:
+   - iOS: `https://u.expo.dev/update/01a0f840-f36c-72a4-88a2-eb1c1f3ec1f8`
+   - Android: `https://u.expo.dev/update/01a0f840-f36c-75f5-a00b-bd71b13b526a`
+
+Expo Go still needs to already be installed (see above), and the app's camera/barcode scanning work normally through this link since it's the real native app, not a web build.
+
+To publish a new update after a change:
 
 ```bash
-npm i -g eas-cli
-eas login
-eas init
-npx expo install expo-updates
-eas update:configure
-eas update --branch main --message "Sach"
+eas update --branch main --message "what changed" --environment preview --non-interactive
 ```
 
-Open the update on your [expo.dev](https://expo.dev) project page and use its **Open in Expo Go** link or QR code. Paste that link here once you have it.
+That reuses the existing project link (`https://expo.dev/accounts/pinkle0402/projects/sach`); update the two manifest links above with the new ones it prints.
 
 ## Redeploying the live demo
 
