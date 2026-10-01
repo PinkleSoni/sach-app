@@ -48,7 +48,7 @@ export default function HistoryScreen({ navigation }) {
 
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.cream },
-  title: { fontFamily: fonts.serif, fontSize: 28, color: colors.forest, paddingHorizontal: 20 },
+  title: { fontFamily: fonts.display, fontSize: 28, letterSpacing: -0.4, color: colors.forest, paddingHorizontal: 20 },
   scroll: { padding: 20, gap: 10, paddingBottom: 24 },
   label: { fontFamily: fonts.bold, fontSize: 12, letterSpacing: 0.7, textTransform: 'uppercase', color: colors.muted },
   row: { minHeight: 64, flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 16, backgroundColor: colors.paper, borderWidth: 1, borderColor: colors.line },

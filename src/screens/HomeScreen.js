@@ -85,7 +85,7 @@ export default function HomeScreen({ navigation }) {
         </View>
 
         <Btn label="Open camera and scan a product" onPress={() => navigation.navigate('Check')} style={s.hero}>
-          <Glow id="homeGlow" inner="#2E4236" outer={colors.forest} cx={0.5} cy={0.42} rx={0.9} ry={0.6} />
+          <Glow id="homeGlow" inner={colors.forestSoft} outer={colors.forest} cx={0.5} cy={0.42} rx={0.9} ry={0.6} />
           <View style={{ alignItems: 'center', gap: 8 }}>
             <Text style={s.heroTitle}>Buying something?{'\n'}Scan it first.</Text>
             <Text style={s.heroSub}>Know in seconds if it suits you</Text>
@@ -137,13 +137,13 @@ const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.cream },
   scroll: { flexGrow: 1, paddingHorizontal: 16, gap: 14 },
   top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, paddingHorizontal: 4 },
-  brand: { fontFamily: fonts.serif, fontSize: 26, color: colors.forest },
+  brand: { fontFamily: fonts.display, fontSize: 26, letterSpacing: -0.3, color: colors.forest },
   fitPill: { minHeight: 44, flexShrink: 1, flexDirection: 'row', alignItems: 'center', gap: 8, paddingLeft: 14, paddingRight: 6, borderRadius: 999, backgroundColor: colors.sand },
   fitText: { flexShrink: 1, fontFamily: fonts.semibold, fontSize: 14, color: colors.forest },
   avatar: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.amber, alignItems: 'center', justifyContent: 'center' },
   avatarText: { fontFamily: fonts.bold, color: colors.forest },
   hero: { flexGrow: 1, minHeight: 430, borderRadius: 32, backgroundColor: colors.forest, alignItems: 'center', justifyContent: 'space-between', paddingTop: 28, paddingBottom: 26, paddingHorizontal: 22, overflow: 'hidden' },
-  heroTitle: { fontFamily: fonts.serif, fontSize: 32, lineHeight: 35, color: colors.cream, textAlign: 'center' },
+  heroTitle: { fontFamily: fonts.display, fontSize: 32, lineHeight: 35, letterSpacing: -0.5, color: colors.cream, textAlign: 'center' },
   heroSub: { fontFamily: fonts.regular, fontSize: 15, color: colors.cream, opacity: 0.8 },
   frame: { width: 190, height: 140, alignItems: 'center', justifyContent: 'center' },
   scanLine: { width: 150, height: 2, backgroundColor: colors.amber, shadowColor: colors.amber, shadowOpacity: 0.6, shadowRadius: 8, shadowOffset: { width: 0, height: 0 } },

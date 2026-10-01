@@ -101,7 +101,7 @@ export default function ReviewScreen({ route, navigation }) {
           <Text style={s.headSub}>Your review · {sent ? 'posted' : `tap ${step} of 3`}</Text>
         </View>
         <View style={{ flexDirection: 'row', gap: 4, paddingRight: 8 }} accessibilityElementsHidden>
-          {[1, 2, 3].map((n) => <View key={n} style={[s.dot, { backgroundColor: n <= step ? colors.amber : '#3A4C41' }]} />)}
+          {[1, 2, 3].map((n) => <View key={n} style={[s.dot, { backgroundColor: n <= step ? colors.amber : colors.forestSoft }]} />)}
         </View>
       </View>
 
@@ -197,7 +197,7 @@ const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.creamDeep },
   header: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 12, paddingBottom: 12, backgroundColor: colors.forest },
   headBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-  thumb: { width: 40, height: 40, borderRadius: 12, backgroundColor: '#3A4C41' },
+  thumb: { width: 40, height: 40, borderRadius: 12, backgroundColor: colors.forestSoft },
   headTitle: { fontFamily: fonts.bold, fontSize: 16, color: colors.cream },
   headSub: { fontFamily: fonts.regular, fontSize: 13, color: colors.cream, opacity: 0.8 },
   dot: { width: 8, height: 8, borderRadius: 4 },

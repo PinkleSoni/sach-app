@@ -7,12 +7,11 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
-import { Figtree_400Regular } from '@expo-google-fonts/figtree/400Regular';
-import { Figtree_500Medium } from '@expo-google-fonts/figtree/500Medium';
-import { Figtree_600SemiBold } from '@expo-google-fonts/figtree/600SemiBold';
-import { Figtree_700Bold } from '@expo-google-fonts/figtree/700Bold';
-import { Figtree_800ExtraBold } from '@expo-google-fonts/figtree/800ExtraBold';
-import { YoungSerif_400Regular } from '@expo-google-fonts/young-serif/400Regular';
+import { Inter_400Regular } from '@expo-google-fonts/inter/400Regular';
+import { Inter_500Medium } from '@expo-google-fonts/inter/500Medium';
+import { Inter_600SemiBold } from '@expo-google-fonts/inter/600SemiBold';
+import { Inter_700Bold } from '@expo-google-fonts/inter/700Bold';
+import { Inter_800ExtraBold } from '@expo-google-fonts/inter/800ExtraBold';
 import { AppProvider, useApp } from './src/context/AppContext';
 import TabBar from './src/components/TabBar';
 import WelcomeScreen from './src/screens/WelcomeScreen';
@@ -61,7 +60,7 @@ function Root() {
 }
 
 export default function App() {
-  const [loaded] = useFonts({ Figtree_400Regular, Figtree_500Medium, Figtree_600SemiBold, Figtree_700Bold, Figtree_800ExtraBold, YoungSerif_400Regular });
+  const [loaded] = useFonts({ Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, Inter_800ExtraBold });
   const onLayout = useCallback(() => { if (loaded) SplashScreen.hideAsync().catch(() => {}); }, [loaded]);
   if (!loaded) return null;
   return (

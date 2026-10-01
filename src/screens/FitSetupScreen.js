@@ -64,7 +64,7 @@ const s = StyleSheet.create({
   skip: { minHeight: 44, paddingHorizontal: 12, justifyContent: 'center' },
   skipText: { fontFamily: fonts.semibold, fontSize: 15, color: colors.mutedDark },
   scroll: { paddingHorizontal: 24, paddingTop: 8, paddingBottom: 24, gap: 22 },
-  h1: { fontFamily: fonts.serif, fontSize: 32, lineHeight: 35, color: colors.forest },
+  h1: { fontFamily: fonts.display, fontSize: 32, lineHeight: 35, letterSpacing: -0.5, color: colors.forest },
   p: { fontFamily: fonts.regular, fontSize: 16, lineHeight: 24, color: colors.mutedDark },
   legend: { fontFamily: fonts.bold, fontSize: 13, letterSpacing: 0.8, textTransform: 'uppercase', color: colors.muted },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },

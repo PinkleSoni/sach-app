@@ -1,9 +1,14 @@
 import { AVOID_KEYS, MUST_KEYS } from '../data/catalog';
 
+// Skin types and conditions. Defined once and shared by PROFILE_GROUPS (what
+// shows in My fit) and matchProduct (what's actually scored), so the two
+// can never drift apart.
+const SKIN = ['Oily', 'Dry', 'Combination', 'Sensitive', 'Acne-prone', 'Eczema-prone', 'Rosacea-prone'];
+
 export const PROFILE_GROUPS = [
   { title: 'Keep these out', items: Object.keys(AVOID_KEYS) },
   { title: 'It must be', items: Object.keys(MUST_KEYS) },
-  { title: 'Your skin', items: ['Oily', 'Dry', 'Combination', 'Sensitive', 'Acne-prone'] },
+  { title: 'Your skin', items: SKIN },
   { title: 'Your hair', items: ['Straight', 'Wavy', 'Curly', 'Colour-treated'] },
 ];
 
@@ -12,10 +17,10 @@ export const EMPTY_PROFILE = {};
 const PASS_AVOID = {
   Fragrance: 'No fragrance', Nuts: 'No nut oils', Parabens: 'No parabens',
   Sulphates: 'No sulphates', 'Drying alcohol': 'No drying alcohol', 'Mineral oil': 'No mineral oil',
+  'Essential oils': 'No essential oils', Silicones: 'No silicones',
+  'Formaldehyde releasers': 'No formaldehyde releasers',
 };
 const PASS_MUST = { Vegan: 'Nothing animal-derived', 'Cruelty-free': 'Not tested on animals', 'Pregnancy-safe': 'Pregnancy-safe formula' };
-
-const SKIN = ['Oily', 'Dry', 'Combination', 'Sensitive', 'Acne-prone'];
 
 // Short label for the "Checking for" pill.
 export function profileSummary(profile) {

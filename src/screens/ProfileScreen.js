@@ -57,7 +57,7 @@ const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.cream },
   scroll: { paddingHorizontal: 20, paddingBottom: 24 },
   head: { gap: 8, paddingBottom: 8 },
-  title: { fontFamily: fonts.serif, fontSize: 30, lineHeight: 34, color: colors.forest },
+  title: { fontFamily: fonts.display, fontSize: 30, lineHeight: 34, letterSpacing: -0.4, color: colors.forest },
   group: { marginTop: 20, gap: 10 },
   legend: { fontFamily: fonts.bold, fontSize: 15, color: colors.forest },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },

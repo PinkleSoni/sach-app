@@ -101,7 +101,7 @@ export default function CheckScreen({ navigation, route }) {
           onBarcodeScanned={scanning ? ({ data }) => handleCode(data) : undefined}
         />
       )}
-      {!cameraOn && <Glow id="checkGlow" inner="#2A3A31" outer={colors.night} cx={0.5} cy={0.38} rx={1.2} ry={0.7} />}
+      {!cameraOn && <Glow id="checkGlow" inner="#262B2D" outer={colors.night} cx={0.5} cy={0.38} rx={1.2} ry={0.7} />}
       <View style={s.scrim} pointerEvents="none" />
 
       <View style={[s.top, { paddingTop: insets.top + 8 }]}>
@@ -196,7 +196,7 @@ export default function CheckScreen({ navigation, route }) {
         <View style={s.tabs} accessibilityRole="tablist">
           {MODES.map((m) => (
             <Btn key={m} label={m === 'Label' ? 'Label (coming soon)' : m} selected={mode === m} onPress={() => { setMode(m); setNotice(''); }} style={[s.tab, mode === m && s.tabOn]}>
-              <Text style={[s.tabText, { color: mode === m ? colors.forest : '#C9C1B2' }]}>{m}</Text>
+              <Text style={[s.tabText, { color: mode === m ? colors.forest : '#A8A29E' }]}>{m}</Text>
             </Btn>
           ))}
         </View>
@@ -243,18 +243,18 @@ function FoundCard({ product, profile, onOpen, onClose }) {
 
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.night },
-  scrim: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(16,26,21,0.35)' },
+  scrim: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(21,24,26,0.35)' },
   top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, paddingHorizontal: 16 },
-  fitPill: { flex: 1, minHeight: 44, minWidth: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingHorizontal: 14, borderRadius: 999, backgroundColor: 'rgba(245,239,228,0.16)' },
+  fitPill: { flex: 1, minHeight: 44, minWidth: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingHorizontal: 14, borderRadius: 999, backgroundColor: 'rgba(255,255,255,0.14)' },
   fitDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.amber },
   fitText: { flexShrink: 1, fontFamily: fonts.semibold, fontSize: 14, color: colors.cream },
-  round: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(245,239,228,0.16)' },
+  round: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.14)' },
   middle: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 18, paddingHorizontal: 24 },
   frame: { width: 260, height: 200, alignItems: 'center', justifyContent: 'center' },
   scanLine: { width: 200, height: 2, backgroundColor: colors.amber, shadowColor: colors.amber, shadowOpacity: 0.6, shadowRadius: 10, shadowOffset: { width: 0, height: 0 } },
   hint: { fontFamily: fonts.medium, fontSize: 15, color: colors.cream, textAlign: 'center' },
   permCard: { width: '100%', borderRadius: 24, backgroundColor: colors.paper, padding: 20, gap: 10 },
-  permTitle: { fontFamily: fonts.serif, fontSize: 22, lineHeight: 26, color: colors.forest },
+  permTitle: { fontFamily: fonts.display, fontSize: 22, lineHeight: 26, letterSpacing: -0.2, color: colors.forest },
   permBody: { fontFamily: fonts.regular, fontSize: 15, color: colors.muted, lineHeight: 21 },
   permBtn: { minHeight: 52, borderRadius: 14, backgroundColor: colors.green, alignItems: 'center', justifyContent: 'center', marginTop: 6 },
   permBtnText: { fontFamily: fonts.bold, fontSize: 16, color: colors.paper },
@@ -263,12 +263,12 @@ const s = StyleSheet.create({
   nameWrap: { flex: 1, paddingHorizontal: 16, paddingTop: 16, gap: 12, backgroundColor: colors.night },
   searchRow: { minHeight: 50, flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, borderRadius: 999, backgroundColor: colors.paper },
   searchInput: { flex: 1, minHeight: 48, fontFamily: fonts.medium, fontSize: 16, color: colors.forest },
-  listLabel: { fontFamily: fonts.bold, fontSize: 12, letterSpacing: 0.7, textTransform: 'uppercase', color: '#C9C1B2', marginTop: 4 },
+  listLabel: { fontFamily: fonts.bold, fontSize: 12, letterSpacing: 0.7, textTransform: 'uppercase', color: '#A8A29E', marginTop: 4 },
   row: { minHeight: 64, flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 16, backgroundColor: colors.paper },
   rowBrand: { fontFamily: fonts.bold, fontSize: 12, letterSpacing: 0.5, textTransform: 'uppercase', color: colors.muted },
   rowName: { fontFamily: fonts.bold, fontSize: 16, color: colors.forest },
   rowScore: { fontFamily: fonts.bold, fontSize: 15 },
-  empty: { fontFamily: fonts.regular, fontSize: 15, color: '#C9C1B2', paddingVertical: 12 },
+  empty: { fontFamily: fonts.regular, fontSize: 15, color: '#A8A29E', paddingVertical: 12 },
   found: { marginHorizontal: 16, marginBottom: 16, padding: 12, borderRadius: 20, backgroundColor: colors.paper, flexDirection: 'row', alignItems: 'center', gap: 12 },
   thumb: { width: 56, height: 56, borderRadius: 14, backgroundColor: colors.sand },
   foundEyebrow: { fontFamily: fonts.bold, fontSize: 12, letterSpacing: 0.7, textTransform: 'uppercase', color: colors.muted },
@@ -284,7 +284,7 @@ const s = StyleSheet.create({
   tabOn: { backgroundColor: colors.cream },
   tabText: { fontFamily: fonts.bold, fontSize: 15 },
   controls: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20 },
-  square: { width: 52, height: 52, borderRadius: 14, borderWidth: 1.5, borderColor: 'rgba(245,239,228,0.35)', backgroundColor: '#1F2C25', alignItems: 'center', justifyContent: 'center' },
+  square: { width: 52, height: 52, borderRadius: 14, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.3)', backgroundColor: '#20262A', alignItems: 'center', justifyContent: 'center' },
   shutter: { width: 76, height: 76, borderRadius: 38, borderWidth: 4, borderColor: colors.cream, alignItems: 'center', justifyContent: 'center' },
   shutterInner: { width: 58, height: 58, borderRadius: 29, backgroundColor: colors.amber },
 });
