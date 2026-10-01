@@ -12,7 +12,7 @@ import { colors, fonts } from '../theme';
 export default function ProfileScreen({ navigation }) {
   const insets = useSafeAreaInsets();
   const { profile, setProfile } = useApp();
-  const { user, signIn, signOut, signingIn, error: authError } = useAuth();
+  const { user, signIn, signOut, signingIn, configured, error: authError } = useAuth();
   const [sel, setSel] = useState(profile || {});
   const [saved, setSaved] = useState(false);
 
@@ -36,10 +36,10 @@ export default function ProfileScreen({ navigation }) {
         <View style={s.account}>
           {user ? (
             <>
-              <View style={s.avatar}><Text style={s.avatarText}>{(user.displayName || user.email || '?')[0].toUpperCase()}</Text></View>
+              <View style={[s.avatar, user.isDemo && s.avatarDemo]}><Text style={[s.avatarText, user.isDemo && s.avatarTextDemo]}>{(user.displayName || user.email || '?')[0].toUpperCase()}</Text></View>
               <View style={{ flex: 1, gap: 2 }}>
                 <Text style={s.accountName} numberOfLines={1}>{user.displayName || 'Signed in'}</Text>
-                <Text style={s.accountSub} numberOfLines={1}>{user.email}</Text>
+                <Text style={s.accountSub} numberOfLines={1}>{user.isDemo ? 'Placeholder account — reviews stay on this phone' : user.email}</Text>
               </View>
               <Btn label="Sign out" onPress={signOut} style={s.signOut}><Text style={s.signOutText}>Sign out</Text></Btn>
             </>
@@ -47,11 +47,15 @@ export default function ProfileScreen({ navigation }) {
             <>
               <View style={s.avatar}><Icon name="user" size={20} color={colors.paper} /></View>
               <View style={{ flex: 1, gap: 2 }}>
-                <Text style={s.accountName}>Sign in to share reviews</Text>
-                <Text style={s.accountSub}>So people checking this product can see what you wrote, and you can see theirs</Text>
+                <Text style={s.accountName}>{configured ? 'Sign in to share reviews' : 'Try the sign-in flow'}</Text>
+                <Text style={s.accountSub}>
+                  {configured
+                    ? 'So people checking this product can see what you wrote, and you can see theirs'
+                    : 'Real Google sign-in isn’t connected yet — this is a placeholder so you can preview it'}
+                </Text>
               </View>
-              <Btn label="Sign in with Google" onPress={signIn} disabled={signingIn} style={[s.signIn, signingIn && { opacity: 0.6 }]}>
-                <Text style={s.signInText}>{signingIn ? '…' : 'Sign in'}</Text>
+              <Btn label={configured ? 'Sign in with Google' : 'Try demo sign-in'} onPress={signIn} disabled={signingIn} style={[s.signIn, signingIn && { opacity: 0.6 }]}>
+                <Text style={s.signInText}>{signingIn ? '…' : configured ? 'Sign in' : 'Try it'}</Text>
               </Btn>
             </>
           )}
@@ -89,7 +93,9 @@ const s = StyleSheet.create({
   title: { fontFamily: fonts.display, fontSize: 30, lineHeight: 34, letterSpacing: -0.4, color: colors.forest },
   account: { marginTop: 18, flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 18, backgroundColor: colors.paper, borderWidth: 1, borderColor: colors.line },
   avatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.green, alignItems: 'center', justifyContent: 'center' },
+  avatarDemo: { backgroundColor: colors.amber },
   avatarText: { fontFamily: fonts.bold, fontSize: 16, color: colors.paper },
+  avatarTextDemo: { color: colors.forest },
   accountName: { fontFamily: fonts.bold, fontSize: 14, color: colors.forest },
   accountSub: { fontFamily: fonts.regular, fontSize: 12, color: colors.muted },
   signOut: { minHeight: 36, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1.5, borderColor: colors.sandDark, justifyContent: 'center' },

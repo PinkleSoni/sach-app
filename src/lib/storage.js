@@ -7,6 +7,7 @@ const KEYS = {
   wishlist: 'sach.wishlist.v1',
   helpful: 'sach.helpful.v1',
   fetchedProducts: 'sach.fetchedProducts.v1',
+  demoUser: 'sach.demoUser.v1',
 };
 
 async function read(key, fallback) {
@@ -44,3 +45,8 @@ export const saveRecents = (v) => write(KEYS.recents, v);
 export const saveWishlist = (v) => write(KEYS.wishlist, v);
 export const saveHelpful = (v) => write(KEYS.helpful, v);
 export const saveFetchedProducts = (v) => write(KEYS.fetchedProducts, v);
+
+// The placeholder sign-in identity, used only until a real Firebase
+// project is connected (see src/lib/firebase.js).
+export const loadDemoUser = () => read(KEYS.demoUser, null);
+export const saveDemoUser = (v) => write(KEYS.demoUser, v);
