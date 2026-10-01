@@ -60,7 +60,8 @@
           "microphonePermission": "Sach uses the microphone so you can record a voice note with your review."
         }
       ],
-      "expo-asset"
+      "expo-asset",
+      "expo-web-browser"
     ],
     "extra": {
       "eas": {

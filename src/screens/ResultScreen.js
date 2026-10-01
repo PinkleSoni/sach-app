@@ -156,7 +156,10 @@ export default function ResultScreen({ route, navigation }) {
           )}
 
           <View style={{ gap: 14 }}>
-            <Text style={s.h2} accessibilityRole="header">What people like you say</Text>
+            <View style={{ gap: 2 }}>
+              <Text style={s.h2} accessibilityRole="header">What people like you say</Text>
+              <Text style={s.h2Sub}>"Like you" means your skin type, hair type, or what you asked us to keep out — not a guess</Text>
+            </View>
             <View style={s.seg} accessibilityRole="tablist">
               {[['like', 'People like me'], ['all', 'Everyone']].map(([id, label]) => (
                 <Btn key={id} label={label} selected={tab === id} onPress={() => setTab(id)} style={[s.segBtn, tab === id && s.segOn]}>
@@ -258,6 +261,7 @@ const s = StyleSheet.create({
   checkLabel: { fontFamily: fonts.bold, fontSize: 14 },
   checkDetail: { fontFamily: fonts.regular, fontSize: 13, color: colors.cream, opacity: 0.85 },
   h2: { fontFamily: fonts.display, fontSize: 22, letterSpacing: -0.2, color: colors.forest },
+  h2Sub: { fontFamily: fonts.regular, fontSize: 13, lineHeight: 18, color: colors.muted },
   card: { borderRadius: 20, backgroundColor: colors.paper, borderWidth: 1, borderColor: colors.line },
   rowTop: { borderTopWidth: 1, borderTopColor: colors.lineSoft },
   ingRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingVertical: 14 },

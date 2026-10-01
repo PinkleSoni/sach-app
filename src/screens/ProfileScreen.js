@@ -2,14 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { ScrollView, Text, View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 import { PROFILE_GROUPS } from '../lib/match';
 import { Btn, Chip, Eyebrow } from '../components/ui';
+import Icon from '../components/Icon';
 import { colors, fonts } from '../theme';
 
 // The "My fit" tab: edit what Sach checks every product against.
 export default function ProfileScreen({ navigation }) {
   const insets = useSafeAreaInsets();
   const { profile, setProfile } = useApp();
+  const { user, signIn, signOut, signingIn, error: authError } = useAuth();
   const [sel, setSel] = useState(profile || {});
   const [saved, setSaved] = useState(false);
 
@@ -29,6 +32,32 @@ export default function ProfileScreen({ navigation }) {
           <Eyebrow>Your fit</Eyebrow>
           <Text style={s.title} accessibilityRole="header">Set your fit once. We check every product against it.</Text>
         </View>
+
+        <View style={s.account}>
+          {user ? (
+            <>
+              <View style={s.avatar}><Text style={s.avatarText}>{(user.displayName || user.email || '?')[0].toUpperCase()}</Text></View>
+              <View style={{ flex: 1, gap: 2 }}>
+                <Text style={s.accountName} numberOfLines={1}>{user.displayName || 'Signed in'}</Text>
+                <Text style={s.accountSub} numberOfLines={1}>{user.email}</Text>
+              </View>
+              <Btn label="Sign out" onPress={signOut} style={s.signOut}><Text style={s.signOutText}>Sign out</Text></Btn>
+            </>
+          ) : (
+            <>
+              <View style={s.avatar}><Icon name="user" size={20} color={colors.paper} /></View>
+              <View style={{ flex: 1, gap: 2 }}>
+                <Text style={s.accountName}>Sign in to share reviews</Text>
+                <Text style={s.accountSub}>So people checking this product can see what you wrote, and you can see theirs</Text>
+              </View>
+              <Btn label="Sign in with Google" onPress={signIn} disabled={signingIn} style={[s.signIn, signingIn && { opacity: 0.6 }]}>
+                <Text style={s.signInText}>{signingIn ? '…' : 'Sign in'}</Text>
+              </Btn>
+            </>
+          )}
+        </View>
+        {!!authError && <Text style={s.authError}>{authError}</Text>}
+
         {PROFILE_GROUPS.map((g) => (
           <View key={g.title} style={s.group}>
             <Text style={s.legend}>{g.title}</Text>
@@ -58,6 +87,16 @@ const s = StyleSheet.create({
   scroll: { paddingHorizontal: 20, paddingBottom: 24 },
   head: { gap: 8, paddingBottom: 8 },
   title: { fontFamily: fonts.display, fontSize: 30, lineHeight: 34, letterSpacing: -0.4, color: colors.forest },
+  account: { marginTop: 18, flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 18, backgroundColor: colors.paper, borderWidth: 1, borderColor: colors.line },
+  avatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.green, alignItems: 'center', justifyContent: 'center' },
+  avatarText: { fontFamily: fonts.bold, fontSize: 16, color: colors.paper },
+  accountName: { fontFamily: fonts.bold, fontSize: 14, color: colors.forest },
+  accountSub: { fontFamily: fonts.regular, fontSize: 12, color: colors.muted },
+  signOut: { minHeight: 36, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1.5, borderColor: colors.sandDark, justifyContent: 'center' },
+  signOutText: { fontFamily: fonts.semibold, fontSize: 13, color: colors.forest },
+  signIn: { minHeight: 36, paddingHorizontal: 14, borderRadius: 999, backgroundColor: colors.green, justifyContent: 'center' },
+  signInText: { fontFamily: fonts.semibold, fontSize: 13, color: colors.paper },
+  authError: { marginTop: 8, fontFamily: fonts.regular, fontSize: 12, color: colors.coralInk },
   group: { marginTop: 20, gap: 10 },
   legend: { fontFamily: fonts.bold, fontSize: 15, color: colors.forest },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },

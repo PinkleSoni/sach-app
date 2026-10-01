@@ -1,0 +1,22 @@
+rules_version = '2';
+
+// Paste this into Firebase console → Firestore Database → Rules, and
+// publish. Anyone can READ reviews (that's the point — shared, honest
+// reviews), but a review can only be written or changed by the signed-in
+// user who owns it, and only with their own real user id attached, so
+// nobody can post as someone else or edit another person's review.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if request.auth != null
+                    && request.resource.data.userId == request.auth.uid
+                    && request.resource.data.productId is string
+                    && request.resource.data.rating is int
+                    && request.resource.data.rating >= 1
+                    && request.resource.data.rating <= 5;
+      allow update, delete: if request.auth != null
+                    && resource.data.userId == request.auth.uid;
+    }
+  }
+}

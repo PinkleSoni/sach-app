@@ -13,6 +13,7 @@ import { Inter_600SemiBold } from '@expo-google-fonts/inter/600SemiBold';
 import { Inter_700Bold } from '@expo-google-fonts/inter/700Bold';
 import { Inter_800ExtraBold } from '@expo-google-fonts/inter/800ExtraBold';
 import { AppProvider, useApp } from './src/context/AppContext';
+import { AuthProvider } from './src/context/AuthContext';
 import TabBar from './src/components/TabBar';
 import WelcomeScreen from './src/screens/WelcomeScreen';
 import FitSetupScreen from './src/screens/FitSetupScreen';
@@ -67,7 +68,9 @@ export default function App() {
     <SafeAreaProvider>
       <View style={{ flex: 1 }} onLayout={onLayout}>
         <AppProvider>
-          <Root />
+          <AuthProvider>
+            <Root />
+          </AuthProvider>
         </AppProvider>
         <StatusBar style="dark" />
       </View>
