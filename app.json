@@ -17,7 +17,7 @@
     "android": {
       "package": "app.sach.fitcheck",
       "adaptiveIcon": {
-        "backgroundColor": "#1C2B22",
+        "backgroundColor": "#171E1B",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -28,7 +28,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#1C2B22",
+          "backgroundColor": "#171E1B",
           "image": "./assets/splash-icon.png",
           "imageWidth": 160
         }
