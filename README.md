@@ -3,6 +3,10 @@
 Check any beauty product against your own fit: allergens, values, skin and hair.
 Built from the V2 design canvas: welcome and set-your-fit onboarding, a Home screen with a scan hero, camera-first check, personal match, and a review chat.
 
+## [Try the live demo →](https://pinklesoni.github.io/sach-app/)
+
+A web build of the app, published from the `gh-pages` branch on every manual deploy (see below). Onboarding, Search name, match results, reviews and the review chat all work. The live camera and barcode scan need a phone — they aren't validated in a desktop browser, so use **Search name** on the demo to try a product (`Kesar Ceramide Gel Moisturiser` is a good one to try first). Your fit profile and reviews are saved in that browser only.
+
 <p>
   <img src="docs/screenshots/1-welcome.png" width="180" alt="Welcome screen">
   <img src="docs/screenshots/2-set-your-fit.png" width="180" alt="Set your fit screen">
@@ -38,9 +42,9 @@ _Screenshots are from the web preview of the app. On a phone it runs in Expo Go 
 
 The `exp://…` address in the terminal only works while the dev server is running, on your own network, so it can't be shared as a link. Camera and barcode scanning need a real phone, not a simulator.
 
-### A link anyone can open
+### A link that opens in Expo Go itself
 
-To share one link that works without your computer running, publish the app with [EAS Update](https://docs.expo.dev/eas-update/getting-started/). It needs a free Expo account:
+The live demo above is a web build — close, but it's not the real app (no live camera). For a link that opens the actual app inside Expo Go on a phone, without your computer running, publish with [EAS Update](https://docs.expo.dev/eas-update/getting-started/). It needs a free Expo account:
 
 ```bash
 npm i -g eas-cli
@@ -52,6 +56,16 @@ eas update --branch main --message "Sach"
 ```
 
 Open the update on your [expo.dev](https://expo.dev) project page and use its **Open in Expo Go** link or QR code. Paste that link here once you have it.
+
+## Redeploying the live demo
+
+The `gh-pages` branch is a plain static export — it's built and pushed by hand, not on every commit to `main`. To update it after a change:
+
+```bash
+npx expo export --platform web --output-dir dist
+```
+
+GitHub Pages serves this repo from a sub-path (`/sach-app/`), so `app.json` needs a temporary `"experiments": { "baseUrl": "/sach-app" }` for this one export — add it, export, then remove it again before committing `app.json` (it would otherwise break the iOS/Android builds, which load assets from the app bundle, not a URL). Then publish `dist/`'s contents to the root of `gh-pages` and push.
 
 ## What is real and what is demo
 
