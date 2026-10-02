@@ -86,7 +86,7 @@ export default function ProfileScreen({ navigation }) {
           </View>
         ))}
         <Text style={s.note}>Your fit stays on this phone.</Text>
-        <Text style={s.disclaimer}>These filters are a guide to help you find products that fit your skin or hair, not a guarantee — always check the label, and see a dermatologist or trichologist for a real diagnosis.</Text>
+        <Text style={s.disclaimer}>These filters are a guide to help you find products that fit your skin or hair, not a guarantee — always check the label, and see a doctor for a real diagnosis.</Text>
         <Btn label="Replay the welcome tour" onPress={() => navigation.getParent()?.navigate('Welcome')} style={s.replay}>
           <Text style={s.replayText}>Replay the welcome tour</Text>
         </Btn>
