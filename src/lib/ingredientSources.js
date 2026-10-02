@@ -13,6 +13,13 @@ export function normalizeBarcode(code) {
   return String(code || '').replace(/\D/g, '');
 }
 
+// A Google search a person can run themselves to find the pack's ingredient
+// list, then paste it into the add-ingredients screen. Costs nothing.
+export function googleSearchUrl(product) {
+  const brand = product.brand && product.brand !== 'Unknown brand' ? product.brand : '';
+  return `https://www.google.com/search?q=${encodeURIComponent(`${brand} ${product.name} ingredients`.trim())}`;
+}
+
 export function parseIngredientText(text) {
   return String(text || '')
     .replace(/^\s*ingredients?\s*[:\-]?\s*/i, '')

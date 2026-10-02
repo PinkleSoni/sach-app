@@ -1,5 +1,7 @@
 # lookupIngredients
 
+> **Optional and switched off.** It needs the paid Blaze plan and an API key. Without it, the app uses the free route: a "Search Google" button that opens a normal Google search for a person to copy the list from. Delete this folder if you never plan to use it.
+
 Finds a product's ingredient list on the web when Open Beauty Facts has none. The app calls it from the Result screen ("Find them online"). It runs on the server because it needs a paid API key.
 
 What it does, in order: returns a list someone already added or found (free) → skips barcodes that recently came up empty (free) → checks the signed-in user's daily allowance (15) → searches the web with Claude → validates the answer (exact product, source must be a page the search returned, plausible list) → saves it to `webIngredientLists/{barcode}` so everyone benefits.

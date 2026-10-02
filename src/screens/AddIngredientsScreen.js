@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, View, StyleSheet } from 'react-native';
+import { KeyboardAvoidingView, Linking, Platform, ScrollView, Text, TextInput, View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getProduct } from '../lib/catalog';
-import { parseIngredientText, submitIngredients } from '../lib/ingredientSources';
+import { googleSearchUrl, parseIngredientText, submitIngredients } from '../lib/ingredientSources';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 import { Btn, Eyebrow } from '../components/ui';
@@ -47,6 +47,10 @@ export default function AddIngredientsScreen({ route, navigation }) {
               : 'Copy the list from the pack. It’s saved on this phone only. Sign in from the My fit tab to share it with everyone.'}
           </Text>
         </View>
+        <Btn label="Search Google for the ingredients" onPress={() => Linking.openURL(googleSearchUrl(product))} style={s.googleBtn}>
+          <Text style={s.googleBtnText}>Search Google for this product’s ingredients</Text>
+        </Btn>
+        <Text style={s.hint}>Not holding the pack? Search for it, copy the ingredient list from a reliable page (the brand’s own site is best), and paste it below. Check it matches your product’s exact version.</Text>
         <View style={{ gap: 6 }}>
           <Text style={s.label}>Ingredients</Text>
           <Text style={s.hint}>Exactly as printed, separated by commas or new lines. At least three.</Text>
@@ -81,6 +85,8 @@ const s = StyleSheet.create({
   p: { fontFamily: fonts.regular, fontSize: 14, lineHeight: 20, color: colors.muted },
   label: { fontFamily: fonts.bold, fontSize: 14, color: colors.forest },
   hint: { fontFamily: fonts.regular, fontSize: 12, color: colors.muted },
+  googleBtn: { minHeight: 48, borderRadius: 14, borderWidth: 1.5, borderColor: colors.sandDark, backgroundColor: colors.paper, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 },
+  googleBtnText: { fontFamily: fonts.bold, fontSize: 15, color: colors.forest },
   textarea: { minHeight: 160, borderRadius: 14, borderWidth: 1.5, borderColor: colors.sandDark, backgroundColor: colors.paper, padding: 16, fontFamily: fonts.medium, fontSize: 15, color: colors.forest, textAlignVertical: 'top' },
   footer: { paddingHorizontal: 20, paddingTop: 12, backgroundColor: colors.cream, borderTopWidth: 1, borderTopColor: colors.line },
   cta: { minHeight: 56, borderRadius: 16, backgroundColor: colors.green, alignItems: 'center', justifyContent: 'center' },

@@ -3,7 +3,7 @@ import { Image, Linking, ScrollView, Share, Text, View, StyleSheet } from 'react
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
-import { WEB_LOOKUP_ENABLED, lookupOnline } from '../lib/ingredientSources';
+import { WEB_LOOKUP_ENABLED, googleSearchUrl, lookupOnline } from '../lib/ingredientSources';
 import { getProduct, allProducts } from '../lib/catalog';
 import { matchProduct, verdictLine, relevantIngredients, isLikeMe, summariseReviews, durationMonths } from '../lib/match';
 import { Btn, Eyebrow, Pill } from '../components/ui';
@@ -149,6 +149,9 @@ export default function ResultScreen({ route, navigation }) {
               <Text style={s.helpBody}>You can fill it in from the pack, and everyone who checks it next will benefit.</Text>
               <Btn label="Add the ingredients from the pack" onPress={() => navigation.navigate('AddIngredients', { productId: product.id })} style={s.helpBtn}>
                 <Text style={s.helpBtnText}>Add them from the pack</Text>
+              </Btn>
+              <Btn label="Search Google for the ingredients" onPress={() => Linking.openURL(googleSearchUrl(product))} style={s.helpBtnAlt}>
+                <Text style={s.helpBtnAltText}>Search Google for them</Text>
               </Btn>
               {WEB_LOOKUP_ENABLED && user && !user.isDemo && (
                 <Btn label="Find the ingredients online" onPress={findOnline} disabled={lookup === 'loading'} style={[s.helpBtnAlt, lookup === 'loading' && { opacity: 0.6 }]}>
