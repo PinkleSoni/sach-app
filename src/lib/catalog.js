@@ -75,7 +75,9 @@ export async function searchProducts(query) {
   const [obf, userSubmitted] = await Promise.all([searchProductsByName(q), searchUserProducts(q)]);
   const seen = new Set(local.map((p) => p.id));
   const extra = [];
-  for (const p of [...obf, ...userSubmitted].map(rememberFetched)) {
+  // Products people added in Sach come before the (much larger) Open Beauty
+  // Facts matches, so a product you just added isn't buried at the bottom.
+  for (const p of [...userSubmitted, ...obf].map(rememberFetched)) {
     if (!p || seen.has(p.id)) continue;
     seen.add(p.id);
     extra.push(p);
