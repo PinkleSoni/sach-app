@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "221501369312",
+    "project_id": "sach-7d177",
+    "storage_bucket": "sach-7d177.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:221501369312:android:238c4a98e7caa2248a9985",
+        "android_client_info": {
+          "package_name": "app.sach.fitcheck"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "221501369312-gso1dolm4md1jorv7nr8osm8eqp62n10.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "app.sach.fitcheck",
+            "certificate_hash": "038ba94aa9166f9dfb0f69ae66156c44a12d7f44"
+          }
+        },
+        {
+          "client_id": "221501369312-o1i990hfmivbepjja08224hn1d9najm4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZyipVrPRSBcOzlh0kvn4xhkqliopAR6E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "221501369312-o1i990hfmivbepjja08224hn1d9najm4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

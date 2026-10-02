@@ -55,7 +55,7 @@ export default function ProfileScreen({ navigation }) {
                   <Text style={s.accountSub}>
                     {configured
                       ? 'So people checking this product can see what you wrote, and you can see theirs'
-                      : 'Google sign-in isn’t in the phone app yet — this placeholder lets you preview it'}
+                      : 'Real Google sign-in needs the installed Sach app, not Expo Go — this placeholder lets you preview it'}
                   </Text>
                 </View>
                 <Btn label={configured ? 'Sign in with Google' : 'Try demo sign-in'} onPress={signIn} disabled={signingIn} style={[s.signIn, signingIn && { opacity: 0.6 }]}>

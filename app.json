@@ -16,6 +16,7 @@
     },
     "android": {
       "package": "app.sach.fitcheck",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#171E1B",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -61,7 +62,8 @@
         }
       ],
       "expo-asset",
-      "expo-web-browser"
+      "expo-web-browser",
+      "@react-native-google-signin/google-signin"
     ],
     "extra": {
       "eas": {
