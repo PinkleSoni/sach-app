@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, Text, View, StyleSheet } from 'react-native';
+import { Linking, ScrollView, Text, View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
@@ -7,6 +7,9 @@ import { PROFILE_GROUPS } from '../lib/match';
 import { Btn, Chip, Eyebrow } from '../components/ui';
 import Icon from '../components/Icon';
 import { colors, fonts } from '../theme';
+
+const PRIVACY_URL = 'https://pinklesoni.github.io/sach-app/privacy.html';
+const TERMS_URL = 'https://pinklesoni.github.io/sach-app/terms.html';
 
 // The "My fit" tab: edit what Sach checks every product against.
 export default function ProfileScreen({ navigation }) {
@@ -34,30 +37,40 @@ export default function ProfileScreen({ navigation }) {
         </View>
 
         <View style={s.account}>
-          {user ? (
-            <>
-              <View style={[s.avatar, user.isDemo && s.avatarDemo]}><Text style={[s.avatarText, user.isDemo && s.avatarTextDemo]}>{(user.displayName || user.email || '?')[0].toUpperCase()}</Text></View>
-              <View style={{ flex: 1, gap: 2 }}>
-                <Text style={s.accountName} numberOfLines={1}>{user.displayName || 'Signed in'}</Text>
-                <Text style={s.accountSub} numberOfLines={1}>{user.isDemo ? 'Placeholder account — reviews stay on this phone' : user.email}</Text>
-              </View>
-              <Btn label="Sign out" onPress={signOut} style={s.signOut}><Text style={s.signOutText}>Sign out</Text></Btn>
-            </>
-          ) : (
-            <>
-              <View style={s.avatar}><Icon name="user" size={20} color={colors.paper} /></View>
-              <View style={{ flex: 1, gap: 2 }}>
-                <Text style={s.accountName}>{configured ? 'Sign in to share reviews' : 'Try the sign-in flow'}</Text>
-                <Text style={s.accountSub}>
-                  {configured
-                    ? 'So people checking this product can see what you wrote, and you can see theirs'
-                    : 'Real Google sign-in isn’t connected yet — this is a placeholder so you can preview it'}
-                </Text>
-              </View>
-              <Btn label={configured ? 'Sign in with Google' : 'Try demo sign-in'} onPress={signIn} disabled={signingIn} style={[s.signIn, signingIn && { opacity: 0.6 }]}>
-                <Text style={s.signInText}>{signingIn ? '…' : configured ? 'Sign in' : 'Try it'}</Text>
-              </Btn>
-            </>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            {user ? (
+              <>
+                <View style={[s.avatar, user.isDemo && s.avatarDemo]}><Text style={[s.avatarText, user.isDemo && s.avatarTextDemo]}>{(user.displayName || user.email || '?')[0].toUpperCase()}</Text></View>
+                <View style={{ flex: 1, gap: 2 }}>
+                  <Text style={s.accountName} numberOfLines={1}>{user.displayName || 'Signed in'}</Text>
+                  <Text style={s.accountSub} numberOfLines={1}>{user.isDemo ? 'Placeholder account — reviews stay on this phone' : user.email}</Text>
+                </View>
+                <Btn label="Sign out" onPress={signOut} style={s.signOut}><Text style={s.signOutText}>Sign out</Text></Btn>
+              </>
+            ) : (
+              <>
+                <View style={s.avatar}><Icon name="user" size={20} color={colors.paper} /></View>
+                <View style={{ flex: 1, gap: 2 }}>
+                  <Text style={s.accountName}>{configured ? 'Sign in to share reviews' : 'Try the sign-in flow'}</Text>
+                  <Text style={s.accountSub}>
+                    {configured
+                      ? 'So people checking this product can see what you wrote, and you can see theirs'
+                      : 'Real Google sign-in isn’t connected yet — this is a placeholder so you can preview it'}
+                  </Text>
+                </View>
+                <Btn label={configured ? 'Sign in with Google' : 'Try demo sign-in'} onPress={signIn} disabled={signingIn} style={[s.signIn, signingIn && { opacity: 0.6 }]}>
+                  <Text style={s.signInText}>{signingIn ? '…' : configured ? 'Sign in' : 'Try it'}</Text>
+                </Btn>
+              </>
+            )}
+          </View>
+          {!user && (
+            <Text style={s.consent}>
+              By continuing, you agree to Sach's{' '}
+              <Text style={s.consentLink} onPress={() => Linking.openURL(PRIVACY_URL)}>Privacy Policy</Text>
+              {' '}and{' '}
+              <Text style={s.consentLink} onPress={() => Linking.openURL(TERMS_URL)}>Terms of Service</Text>.
+            </Text>
           )}
         </View>
         {!!authError && <Text style={s.authError}>{authError}</Text>}
@@ -91,7 +104,9 @@ const s = StyleSheet.create({
   scroll: { paddingHorizontal: 20, paddingBottom: 24 },
   head: { gap: 8, paddingBottom: 8 },
   title: { fontFamily: fonts.display, fontSize: 30, lineHeight: 34, letterSpacing: -0.4, color: colors.forest },
-  account: { marginTop: 18, flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 18, backgroundColor: colors.paper, borderWidth: 1, borderColor: colors.line },
+  account: { marginTop: 18, gap: 10, padding: 14, borderRadius: 18, backgroundColor: colors.paper, borderWidth: 1, borderColor: colors.line },
+  consent: { fontFamily: fonts.regular, fontSize: 12, lineHeight: 17, color: colors.muted },
+  consentLink: { fontFamily: fonts.semibold, color: colors.green },
   avatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.green, alignItems: 'center', justifyContent: 'center' },
   avatarDemo: { backgroundColor: colors.amber },
   avatarText: { fontFamily: fonts.bold, fontSize: 16, color: colors.paper },
