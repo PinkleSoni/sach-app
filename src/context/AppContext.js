@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useMemo, useState, useCall
 import * as storage from '../lib/storage';
 import { SEED_REVIEWS } from '../data/reviews';
 import { hydrateFetchedProducts, allFetchedProducts, getProduct } from '../lib/catalog';
+import { fetchSharedReviews } from '../lib/sharedReviews';
 
 const Ctx = createContext(null);
 export const useApp = () => useContext(Ctx);
@@ -13,6 +14,7 @@ export function AppProvider({ children }) {
   const [recents, setRecents] = useState([]);
   const [wishlist, setWishlist] = useState([]);
   const [helpful, setHelpful] = useState([]);
+  const [remoteReviews, setRemoteReviews] = useState({});
 
   useEffect(() => {
     storage.loadAll().then((s) => {
@@ -70,14 +72,26 @@ export function AppProvider({ children }) {
     });
   }, []);
 
+  const loadRemoteReviews = useCallback((productId) => {
+    return fetchSharedReviews(productId)
+      .then((list) => setRemoteReviews((prev) => ({ ...prev, [productId]: list })))
+      .catch(() => {});
+  }, []);
+
+  // Your own review is already in myReviews (with its photos and voice
+  // note), so the shared copy of it is left out rather than shown twice.
   const reviewsFor = useCallback(
-    (productId) => [...myReviews, ...SEED_REVIEWS].filter((r) => r.productId === productId),
-    [myReviews]
+    (productId) => {
+      const mine = new Set(myReviews.map((r) => r.id));
+      const shared = (remoteReviews[productId] || []).filter((r) => !mine.has(r.localId));
+      return [...myReviews, ...shared, ...SEED_REVIEWS].filter((r) => r.productId === productId);
+    },
+    [myReviews, remoteReviews]
   );
 
   const value = useMemo(
-    () => ({ ready, profile, setProfile, myReviews, recents, addRecent, addReview, wishlist, toggleWishlist, helpful, toggleHelpful, reviewsFor }),
-    [ready, profile, setProfile, myReviews, recents, addRecent, addReview, wishlist, toggleWishlist, helpful, toggleHelpful, reviewsFor]
+    () => ({ ready, profile, setProfile, myReviews, recents, addRecent, addReview, wishlist, toggleWishlist, helpful, toggleHelpful, reviewsFor, loadRemoteReviews }),
+    [ready, profile, setProfile, myReviews, recents, addRecent, addReview, wishlist, toggleWishlist, helpful, toggleHelpful, reviewsFor, loadRemoteReviews]
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

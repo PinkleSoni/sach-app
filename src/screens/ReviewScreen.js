@@ -6,7 +6,9 @@ import { useIsFocused } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import { RecordingPresets, requestRecordingPermissionsAsync, setAudioModeAsync, useAudioRecorder, useAudioRecorderState } from 'expo-audio';
 import { useApp } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 import { getProduct } from '../lib/catalog';
+import { submitSharedReview } from '../lib/sharedReviews';
 import { Btn } from '../components/ui';
 import Icon, { SmileIcon } from '../components/Icon';
 import VoiceNote from '../components/VoiceNote';
@@ -23,7 +25,8 @@ const MAX_PHOTOS = 4;
 export default function ReviewScreen({ route, navigation }) {
   const insets = useSafeAreaInsets();
   const focused = useIsFocused();
-  const { profile, addReview } = useApp();
+  const { profile, addReview, loadRemoteReviews } = useApp();
+  const { user } = useAuth();
   const product = getProduct(route.params.productId);
   const [verdict, setVerdict] = useState(null);
   const [tags, setTags] = useState({});
@@ -74,7 +77,7 @@ export default function ReviewScreen({ route, navigation }) {
 
   const post = () => {
     const v = VERDICTS.find((x) => x.label === verdict);
-    addReview({
+    const review = {
       id: 'm' + Date.now(),
       productId: product.id,
       rating: v.rating,
@@ -86,7 +89,9 @@ export default function ReviewScreen({ route, navigation }) {
       photos,
       voice,
       mine: true,
-    });
+    };
+    addReview(review);
+    submitSharedReview(review, user).then(() => loadRemoteReviews(product.id)).catch(() => {});
     setSent(true);
   };
 

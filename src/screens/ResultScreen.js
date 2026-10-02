@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Image, Linking, ScrollView, Share, Text, View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../context/AppContext';
@@ -17,8 +17,9 @@ const VERDICT = {
 
 export default function ResultScreen({ route, navigation }) {
   const insets = useSafeAreaInsets();
-  const { profile, reviewsFor, wishlist, toggleWishlist, helpful, toggleHelpful, addRecent } = useApp();
+  const { profile, reviewsFor, loadRemoteReviews, wishlist, toggleWishlist, helpful, toggleHelpful, addRecent } = useApp();
   const product = getProduct(route.params.productId);
+  useEffect(() => { loadRemoteReviews(product.id); }, [product.id, loadRemoteReviews]);
   const p = profile || {};
   const [tab, setTab] = useState('like');
   const [allIngredients, setAllIngredients] = useState(false);
