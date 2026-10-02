@@ -14,38 +14,20 @@
 // Coverage is crowdsourced and skews toward European-market products; a
 // barcode not being found here doesn't mean the product doesn't exist.
 
+import { matchAvoidKeyInText, titleCase } from './ingredientMatch';
+
 const BASE = 'https://world.openbeautyfacts.org';
 const USER_AGENT = 'Sach/1.0 (github.com/PinkleSoni/sach-app)';
 const PRODUCT_FIELDS = 'code,product_name,generic_name,brands,categories,ingredients,image_front_small_url';
 
-const AVOID_PATTERNS = {
-  // Includes the EU's declared standalone fragrance allergens (limonene,
-  // linalool, etc.) — when one of these appears alone in a list, it signals
-  // an added fragrance compound, the same as "Parfum" itself.
-  fragrance: /\b(parfum|fragrance|aroma|limonene|linalool|citronellol|geraniol|eugenol|citral|coumarin|benzyl benzoate|benzyl salicylate|hexyl cinnamal)\b/i,
-  nuts: /\b(almond|amygdalus|arachis|peanut|hazelnut|walnut|cashew|pistachio)\b/i,
-  parabens: /paraben/i,
-  sulphates: /\b(sodium laureth sulfate|sodium lauryl sulfate|sles|sls|ammonium laureth sulfate)\b/i,
-  dryingAlcohol: /\b(alcohol denat|denatured alcohol|ethanol)\b/i,
-  mineralOil: /\b(mineral oil|paraffinum liquidum|petrolatum)\b/i,
-  essentialOils: /essential oil|huile essentielle|(citrus|lavandula|mentha|eucalyptus|melaleuca|cananga|rosmarinus).*\boil\b/i,
-  silicones: /\b(dimethicone|cyclopentasiloxane|cyclohexasiloxane|amodimethicone|phenyl trimethicone)\b/i,
-  formaldehydeReleasers: /\b(dmdm hydantoin|imidazolidinyl urea|diazolidinyl urea|quaternium-15|bronopol)\b/i,
-};
-
 function ingredientName(ing) {
   // OBF ingredient text is often the raw label, sometimes shouting case.
   const raw = (ing.text || ing.id || '').replace(/^en:|^fr:/, '').trim();
-  if (!raw) return 'Unlisted ingredient';
-  return raw.length > 3 ? raw[0].toUpperCase() + raw.slice(1).toLowerCase() : raw.toUpperCase();
+  return raw ? titleCase(raw) : 'Unlisted ingredient';
 }
 
 function matchAvoidKey(ing) {
-  const hay = `${ing.text || ''} ${ing.id || ''}`;
-  for (const [key, pattern] of Object.entries(AVOID_PATTERNS)) {
-    if (pattern.test(hay)) return key;
-  }
-  return null;
+  return matchAvoidKeyInText(`${ing.text || ''} ${ing.id || ''}`);
 }
 
 // Turns Open Beauty Facts' raw shape into the same product shape

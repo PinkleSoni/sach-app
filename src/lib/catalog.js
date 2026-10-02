@@ -1,5 +1,6 @@
 import { PRODUCTS } from '../data/catalog';
 import { fetchProductByBarcode, searchProductsByName } from './openBeautyFacts';
+import { buildUserProduct, fetchUserProductByBarcode, searchUserProducts, submitUserProduct } from './userProducts';
 
 // Products fetched from Open Beauty Facts at runtime, keyed by id, so a
 // barcode scan or name search for a real (non-demo) product can be looked
@@ -38,8 +39,9 @@ function findLocalByBarcode(clean) {
   return PRODUCTS.find((p) => p.barcode === clean || p.barcode === '0' + clean || p.barcode.replace(/^0/, '') === clean) || null;
 }
 
-// Async: checks our curated catalog first (instant), then falls back to
-// Open Beauty Facts for a real product we don't have curated data for.
+// Async: checks our curated catalog first (instant), then Open Beauty
+// Facts, then finally other Sach users' own submissions for a barcode
+// nobody else has data on.
 export async function getProductByBarcode(code) {
   const clean = normalizeBarcode(code);
   const local = findLocalByBarcode(clean);
@@ -47,7 +49,9 @@ export async function getProductByBarcode(code) {
   const cached = Object.values(fetchedCache).find((p) => normalizeBarcode(p.barcode) === clean);
   if (cached) return cached;
   const remote = await fetchProductByBarcode(clean);
-  return rememberFetched(remote);
+  if (remote) return rememberFetched(remote);
+  const userSubmitted = await fetchUserProductByBarcode(clean);
+  return rememberFetched(userSubmitted);
 }
 
 function searchLocal(query) {
@@ -61,18 +65,35 @@ function searchLocal(query) {
 }
 
 // Async: local matches first (instant, and these have the richer curated
-// skin-fit and review data), then real products from Open Beauty Facts for
-// anything our own catalog doesn't cover. Only hits the network for a query
-// specific enough to be worth it.
+// skin-fit and review data), then real products from Open Beauty Facts,
+// then other Sach users' own submissions. Only hits the network for a
+// query specific enough to be worth it.
 export async function searchProducts(query) {
   const local = searchLocal(query);
   const q = String(query || '').trim();
   if (q.length < 3) return local;
-  const remote = (await searchProductsByName(q)).map(rememberFetched);
+  const [obf, userSubmitted] = await Promise.all([searchProductsByName(q), searchUserProducts(q)]);
   const seen = new Set(local.map((p) => p.id));
-  return [...local, ...remote.filter((p) => !seen.has(p.id))];
+  const extra = [];
+  for (const p of [...obf, ...userSubmitted].map(rememberFetched)) {
+    if (!p || seen.has(p.id)) continue;
+    seen.add(p.id);
+    extra.push(p);
+  }
+  return [...local, ...extra];
 }
 
 export function allProducts() {
   return PRODUCTS;
+}
+
+// Saves a product someone fills in by hand after a scan/search came up
+// empty everywhere else. Always remembered locally (so it works this
+// session even without Firebase); also shared to Firestore when a real
+// project is connected, via submitUserProduct's own configured-check.
+export async function addUserProduct(formValues) {
+  const product = buildUserProduct(formValues);
+  rememberFetched(product);
+  await submitUserProduct(product).catch(() => {});
+  return product;
 }

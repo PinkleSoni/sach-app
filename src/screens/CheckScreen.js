@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Linking, Text, TextInput, View, StyleSheet, ScrollView } from 'react-native';
+import { Alert, Linking, Text, TextInput, View, StyleSheet, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useIsFocused } from '@react-navigation/native';
@@ -8,6 +8,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as Haptics from 'expo-haptics';
 import Svg, { Path } from 'react-native-svg';
 import { useApp } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 import { getProductByBarcode, searchProducts, allProducts } from '../lib/catalog';
 import { matchProduct, profileSummary } from '../lib/match';
 import { Btn } from '../components/ui';
@@ -27,6 +28,7 @@ export default function CheckScreen({ navigation, route }) {
   const insets = useSafeAreaInsets();
   const focused = useIsFocused();
   const { profile, addRecent } = useApp();
+  const { user, signIn } = useAuth();
   const [permission, requestPermission] = useCameraPermissions();
   const [mode, setMode] = useState(route.params?.mode || 'Barcode');
   const [torch, setTorch] = useState(false);
@@ -125,6 +127,20 @@ export default function CheckScreen({ navigation, route }) {
   const goHome = () => navigation.popTo('Tabs', { screen: 'Home' });
   const editFit = () => navigation.popTo('Tabs', { screen: 'Fit' });
 
+  // Adding a product needs an owner, even the placeholder demo one, so a
+  // submission can always be traced back to who made it.
+  const goAddProduct = (barcode) => {
+    if (!user) {
+      Alert.alert('Sign in first', 'So your submission can be shared, sign in from the My fit tab, then come back.', [
+        { text: 'Sign in', onPress: () => signIn() },
+        { text: 'Not now', style: 'cancel' },
+      ]);
+      return;
+    }
+    setFound(null);
+    navigation.navigate('AddProduct', barcode ? { barcode } : undefined);
+  };
+
   const shutter = () => {
     if (found?.product) return open(found.product);
     if (mode === 'Label') return setNotice('Label reading is coming soon. Scan the barcode or search by name for now.');
@@ -191,7 +207,14 @@ export default function CheckScreen({ navigation, route }) {
                 </Btn>
               );
             })}
-            {!nameResults.length && <Text style={s.empty}>Nothing matched. Try fewer words, or scan the barcode.</Text>}
+            {!nameResults.length && !searching && (
+              <View style={{ gap: 10 }}>
+                <Text style={s.empty}>Nothing matched. Try fewer words, or scan the barcode.</Text>
+                <Btn label="Add this product" onPress={() => goAddProduct()} style={s.addProductLink}>
+                  <Text style={s.addProductLinkText}>Can&rsquo;t find it? Add it yourself</Text>
+                </Btn>
+              </View>
+            )}
           </ScrollView>
         </View>
       ) : (
@@ -225,14 +248,19 @@ export default function CheckScreen({ navigation, route }) {
         found.product ? (
           <FoundCard product={found.product} profile={p} onOpen={() => open(found.product)} onClose={() => setFound(null)} />
         ) : (
-          <View style={s.found}>
-            <View style={{ flex: 1, gap: 3 }}>
-              <Text style={s.foundEyebrow}>Not in our catalog yet</Text>
-              <Text style={s.foundName}>Barcode {found.unknown}</Text>
-              <Text style={s.foundSub}>Try searching by name.</Text>
+          <View style={s.foundColumn}>
+            <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 10 }}>
+              <View style={{ flex: 1, gap: 3 }}>
+                <Text style={s.foundEyebrow}>Not in our catalog yet</Text>
+                <Text style={s.foundName}>Barcode {found.unknown}</Text>
+                <Text style={s.foundSub}>Try searching by name, or add it yourself.</Text>
+              </View>
+              <Btn label="Scan again" onPress={() => setFound(null)} style={s.foundClose}><Icon name="x" size={18} color={colors.forest} /></Btn>
             </View>
-            <Btn label="Search by name" onPress={() => { setFound(null); setMode('Name'); }} style={s.foundBtn}><Text style={s.foundBtnText}>Search</Text></Btn>
-            <Btn label="Scan again" onPress={() => setFound(null)} style={s.foundClose}><Icon name="x" size={18} color={colors.forest} /></Btn>
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <Btn label="Search by name" onPress={() => { setFound(null); setMode('Name'); }} style={[s.foundBtn, { flex: 1 }]}><Text style={s.foundBtnText}>Search</Text></Btn>
+              <Btn label="Add this product" onPress={() => goAddProduct(found.unknown)} style={[s.addProductBtn, { flex: 1 }]}><Text style={s.addProductBtnText}>Add it</Text></Btn>
+            </View>
           </View>
         )
       )}
@@ -315,6 +343,11 @@ const s = StyleSheet.create({
   rowScore: { fontFamily: fonts.bold, fontSize: 15 },
   empty: { fontFamily: fonts.regular, fontSize: 15, color: '#A8A29E', paddingVertical: 12 },
   found: { marginHorizontal: 16, marginBottom: 16, padding: 12, borderRadius: 20, backgroundColor: colors.paper, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  foundColumn: { marginHorizontal: 16, marginBottom: 16, padding: 12, borderRadius: 20, backgroundColor: colors.paper, gap: 10 },
+  addProductBtn: { minHeight: 44, borderRadius: 12, backgroundColor: colors.amber, justifyContent: 'center', alignItems: 'center' },
+  addProductBtnText: { fontFamily: fonts.bold, fontSize: 14, color: colors.forest },
+  addProductLink: { minHeight: 44, justifyContent: 'center' },
+  addProductLinkText: { fontFamily: fonts.semibold, fontSize: 14, color: colors.green },
   thumb: { width: 56, height: 56, borderRadius: 14, backgroundColor: colors.sand },
   foundEyebrow: { fontFamily: fonts.bold, fontSize: 12, letterSpacing: 0.7, textTransform: 'uppercase', color: colors.muted },
   foundName: { fontFamily: fonts.bold, fontSize: 16, color: colors.forest },

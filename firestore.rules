@@ -18,5 +18,20 @@ service cloud.firestore {
       allow update, delete: if request.auth != null
                     && resource.data.userId == request.auth.uid;
     }
+
+    // Products a user fills in by hand when a scan/search finds nothing —
+    // shared with anyone who later scans or searches for the same thing.
+    // Doc id is the barcode, so a create is really "first person to add
+    // this barcode"; after that it's an update by whoever adds to it
+    // (kept simple: last write wins rather than merging contributions).
+    match /userProducts/{barcode} {
+      allow read: if true;
+      allow create, update: if request.auth != null
+                    && request.resource.data.submittedBy == request.auth.uid
+                    && request.resource.data.barcode == barcode
+                    && request.resource.data.name is string
+                    && request.resource.data.name.size() > 0;
+      allow delete: if false; // no deletes from the client — ask in the app's repo issues if you need to remove one
+    }
   }
 }

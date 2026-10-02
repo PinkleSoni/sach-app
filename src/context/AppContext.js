@@ -37,10 +37,11 @@ export function AppProvider({ children }) {
       storage.saveRecents(next);
       return next;
     });
-    // If this was a real product looked up from Open Beauty Facts (not in
-    // our own catalog), remember it past this session so History and
-    // Reviews can still resolve it by id later.
-    if (getProduct(productId)?.source === 'openbeautyfacts') {
+    // If this wasn't one of our own curated products (it came from Open
+    // Beauty Facts, or a user filled it in by hand), remember it past this
+    // session so History and Reviews can still resolve it by id later.
+    const source = getProduct(productId)?.source;
+    if (source === 'openbeautyfacts' || source === 'user') {
       storage.saveFetchedProducts(allFetchedProducts());
     }
   }, []);
