@@ -61,7 +61,7 @@ function normalizeProduct(raw) {
 
   const brand = (raw.brands || '').split(',')[0].trim() || 'Unknown brand';
   const firstCategory = (raw.categories || '').split(',')[0].replace(/^(en|fr):/, '').trim();
-  const category = /incorrect|unknown/i.test(firstCategory) ? 'Personal care' : firstCategory || 'Personal care';
+  const category = /incorrect|unknown|non-food/i.test(firstCategory) ? 'Personal care' : firstCategory || 'Personal care';
 
   return {
     id: `obf:${raw.code}`,

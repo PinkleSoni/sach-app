@@ -137,9 +137,11 @@ export default function ResultScreen({ route, navigation }) {
                 </View>
               ))}
               {!allIngredients && !ingredients.length && <Text style={[s.ingNote, { padding: 16 }]}>{m.ingredientsKnown ? 'Nothing here conflicts with your fit.' : 'No usable ingredient list on file for this product.'}</Text>}
-              <Btn label={allIngredients ? 'Show fewer ingredients' : `See all ${product.ingredients.length} ingredients`} onPress={() => setAllIngredients((v) => !v)} style={[s.seeAll, s.rowTop]}>
-                <Text style={s.link}>{allIngredients ? 'Show fewer' : `See all ${product.ingredients.length} ingredients`}</Text>
-              </Btn>
+              {m.ingredientsKnown && (
+                <Btn label={allIngredients ? 'Show fewer ingredients' : `See all ${product.ingredients.length} ingredients`} onPress={() => setAllIngredients((v) => !v)} style={[s.seeAll, s.rowTop]}>
+                  <Text style={s.link}>{allIngredients ? 'Show fewer' : `See all ${product.ingredients.length} ingredients`}</Text>
+                </Btn>
+              )}
             </View>
           </View>
 
