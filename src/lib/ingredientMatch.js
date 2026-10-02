@@ -16,6 +16,11 @@ export const AVOID_PATTERNS = {
   essentialOils: /essential oil|huile essentielle|(citrus|lavandula|mentha|eucalyptus|melaleuca|cananga|rosmarinus).*\boil\b/i,
   silicones: /\b(dimethicone|cyclopentasiloxane|cyclohexasiloxane|amodimethicone|phenyl trimethicone)\b/i,
   formaldehydeReleasers: /\b(dmdm hydantoin|imidazolidinyl urea|diazolidinyl urea|quaternium-15|bronopol)\b/i,
+  // Common Malassezia folliculitis ("fungal acne") feeders: fatty acid esters,
+  // free fatty acids and polysorbates. Deliberately excludes fatty ALCOHOLS
+  // (cetyl/stearyl alcohol), which despite the similar name are considered
+  // fungal-acne-safe.
+  fungalAcneTriggers: /\b(isopropyl palmitate|isopropyl myristate|isopropyl linoleate|myristyl myristate|polysorbate\s?20|polysorbate\s?60|polysorbate\s?80|oleic acid|lauric acid|glyceryl stearate|sorbitan oleate)\b/i,
 };
 
 export function matchAvoidKeyInText(text) {

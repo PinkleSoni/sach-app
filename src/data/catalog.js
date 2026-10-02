@@ -12,6 +12,7 @@ export const AVOID_KEYS = {
   'Essential oils': 'essentialOils',
   Silicones: 'silicones',
   'Formaldehyde releasers': 'formaldehydeReleasers',
+  'Fungal-acne triggers': 'fungalAcneTriggers',
 };
 
 export const MUST_KEYS = {
@@ -30,7 +31,7 @@ export const PRODUCTS = [
     brand: 'Neel & Co',
     name: 'Kesar Ceramide Gel Moisturiser',
     category: 'Moisturiser',
-    contains: { fragrance: true, silicones: true },
+    contains: { fragrance: true, silicones: true, fungalAcneTriggers: true },
     is: { vegan: true, crueltyFree: true, pregnancySafe: true },
     skin: {
       Oily: { ok: true, note: 'Light gel texture' },
@@ -40,16 +41,18 @@ export const PRODUCTS = [
       'Acne-prone': { ok: true, note: 'Non-comedogenic gel' },
       'Eczema-prone': { ok: false, note: 'Fragrance can flare eczema-prone skin' },
       'Rosacea-prone': { ok: false, note: 'Fragrance can trigger flushing' },
+      'Hyperpigmentation-prone': { ok: false, note: 'Fragrance raises the risk of post-inflammatory dark marks' },
     },
     ingredients: [
       { name: 'Aqua', note: 'Base' },
       { name: 'Glycerin', note: 'Draws in moisture' },
-      { name: 'Niacinamide', note: 'Helps control oil', good: ['Oily', 'Acne-prone', 'Combination'] },
+      { name: 'Niacinamide', note: 'Helps control oil and fades dark marks', good: ['Oily', 'Acne-prone', 'Combination', 'Hyperpigmentation-prone'] },
       { name: 'Ceramide NP', note: 'Supports your skin barrier', good: ['Dry', 'Sensitive', 'Oily', 'Combination', 'Acne-prone', 'Eczema-prone'] },
       { name: 'Crocus Sativus Extract', note: 'Saffron extract' },
       { name: 'Squalane', note: 'Lightweight emollient' },
       { name: 'Carbomer', note: 'Gel texture' },
       { name: 'Sodium Hyaluronate', note: 'Hydration', good: ['Dry', 'Combination'] },
+      { name: 'Isopropyl Palmitate', note: 'Emollient, can feed fungal acne', avoid: 'fungalAcneTriggers' },
       { name: 'Dimethicone', note: 'Silicone, for a silky finish', avoid: 'silicones' },
       { name: 'Parfum', note: 'Fragrance', avoid: 'fragrance' },
       { name: 'Phenoxyethanol', note: 'Preservative' },
@@ -71,12 +74,14 @@ export const PRODUCTS = [
       'Acne-prone': { ok: true, note: 'Non-comedogenic' },
       'Eczema-prone': { ok: true, note: 'Ceramides and panthenol support a weak barrier' },
       'Rosacea-prone': { ok: true, note: 'Calm, fragrance-free formula' },
+      'Hyperpigmentation-prone': { ok: true, note: 'Turmeric and niacinamide help even out dark marks, with no fragrance to trigger new ones' },
     },
     ingredients: [
       { name: 'Aqua', note: 'Base' },
       { name: 'Glycerin', note: 'Draws in moisture' },
-      { name: 'Niacinamide', note: 'Helps control oil', good: ['Oily', 'Acne-prone', 'Combination'] },
+      { name: 'Niacinamide', note: 'Helps control oil and fades dark marks', good: ['Oily', 'Acne-prone', 'Combination', 'Hyperpigmentation-prone'] },
       { name: 'Ceramide NP', note: 'Supports your skin barrier', good: ['Dry', 'Sensitive', 'Oily', 'Combination', 'Acne-prone', 'Eczema-prone'] },
+      { name: 'Curcuma Longa Root Extract', note: 'Turmeric, traditionally used to brighten dark marks', good: ['Hyperpigmentation-prone'] },
       { name: 'Panthenol', note: 'Soothes', good: ['Sensitive', 'Dry', 'Eczema-prone', 'Rosacea-prone'] },
       { name: 'Squalane', note: 'Lightweight emollient' },
       { name: 'Carbomer', note: 'Texture' },
@@ -119,6 +124,11 @@ export const PRODUCTS = [
     contains: { mineralOil: true, fragrance: true, essentialOils: true },
     is: { vegan: true, crueltyFree: false, pregnancySafe: true },
     skin: {},
+    hair: {
+      'Dandruff-prone': { ok: false, note: 'Heavy mineral oil can sit on the scalp and worsen flaking' },
+      'Hair thinning': { ok: false, note: 'Fragrance and essential oils can irritate a scalp prone to shedding' },
+      'Colour-treated': { ok: false, note: 'Mineral oil coats the hair shaft and can dull colour over time' },
+    },
     ingredients: [
       { name: 'Paraffinum Liquidum', note: 'Mineral oil', avoid: 'mineralOil' },
       { name: 'Emblica Officinalis Fruit Extract', note: 'Amla' },
@@ -139,11 +149,15 @@ export const PRODUCTS = [
       'Eczema-prone': { ok: true, note: 'Fragrance-free, soothing panthenol' },
       'Rosacea-prone': { ok: true, note: 'No fragrance or essential oils' },
     },
+    hair: {
+      'Dandruff-prone': { ok: true, note: 'Fragrance-free and lightweight, so it conditions without feeding flakes' },
+      'Hair thinning': { ok: true, note: 'Bhringraj is a traditional scalp-stimulating ingredient, with nothing irritating to add to shedding' },
+    },
     ingredients: [
       { name: 'Aqua', note: 'Base' },
-      { name: 'Eclipta Prostrata Extract', note: 'Bhringraj' },
+      { name: 'Eclipta Prostrata Extract', note: 'Bhringraj, traditionally used for scalp health and hair thinning', good: ['Hair thinning'] },
       { name: 'Glycerin', note: 'Draws in moisture' },
-      { name: 'Panthenol', note: 'Conditions', good: ['Eczema-prone', 'Rosacea-prone'] },
+      { name: 'Panthenol', note: 'Conditions', good: ['Eczema-prone', 'Rosacea-prone', 'Dandruff-prone'] },
     ],
   },
   {

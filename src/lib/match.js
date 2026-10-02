@@ -2,14 +2,27 @@ import { AVOID_KEYS, MUST_KEYS } from '../data/catalog';
 
 // Skin types and conditions. Defined once and shared by PROFILE_GROUPS (what
 // shows in My fit) and matchProduct (what's actually scored), so the two
-// can never drift apart.
-const SKIN = ['Oily', 'Dry', 'Combination', 'Sensitive', 'Acne-prone', 'Eczema-prone', 'Rosacea-prone'];
+// can never drift apart. 'Hyperpigmentation-prone' follows the Baumann Skin
+// Type Indicator's pigmented/non-pigmented axis, and specifically research
+// (Indian Journal of Dermatology) on melasma/post-inflammatory hyperpigmentation
+// being more common and more sensitive to irritation in Fitzpatrick IV-VI
+// (Indian) skin.
+const SKIN = ['Oily', 'Dry', 'Combination', 'Sensitive', 'Acne-prone', 'Eczema-prone', 'Rosacea-prone', 'Hyperpigmentation-prone'];
+
+// Hair/scalp conditions. Texture (Straight/Wavy/Curly/Coily, completing the
+// standard Type 1-4 hair typing system) stays a social-matching trait like
+// before, but 'Dandruff-prone' and 'Hair thinning' are real scalp conditions
+// from professional trichology (dandruff/seborrheic dermatitis and
+// androgenetic alopecia/telogen effluvium, per the Institute of
+// Trichologists' scalp-condition taxonomy) and, like skin conditions, are
+// actually scored against a product's `hair` fit notes in matchProduct.
+const HAIR = ['Straight', 'Wavy', 'Curly', 'Coily', 'Colour-treated', 'Dandruff-prone', 'Hair thinning'];
 
 export const PROFILE_GROUPS = [
   { title: 'Keep these out', items: Object.keys(AVOID_KEYS) },
   { title: 'It must be', items: Object.keys(MUST_KEYS) },
   { title: 'Your skin', items: SKIN },
-  { title: 'Your hair', items: ['Straight', 'Wavy', 'Curly', 'Colour-treated'] },
+  { title: 'Your hair', items: HAIR },
 ];
 
 export const EMPTY_PROFILE = {};
@@ -19,6 +32,7 @@ const PASS_AVOID = {
   Sulphates: 'No sulphates', 'Drying alcohol': 'No drying alcohol', 'Mineral oil': 'No mineral oil',
   'Essential oils': 'No essential oils', Silicones: 'No silicones',
   'Formaldehyde releasers': 'No formaldehyde releasers',
+  'Fungal-acne triggers': 'No fungal-acne triggers',
 };
 const PASS_MUST = { Vegan: 'Nothing animal-derived', 'Cruelty-free': 'Not tested on animals', 'Pregnancy-safe': 'Pregnancy-safe formula' };
 
@@ -28,6 +42,7 @@ export function profileSummary(profile) {
   Object.keys(MUST_KEYS).forEach((k) => profile[k] && parts.push(k));
   Object.keys(AVOID_KEYS).forEach((k) => profile[k] && parts.push('No ' + k.toLowerCase()));
   SKIN.forEach((k) => profile[k] && parts.push(k + ' skin'));
+  HAIR.forEach((k) => profile[k] && parts.push(k));
   if (!parts.length) return 'Set your fit';
   const shown = parts.slice(0, 2).join(', ');
   return parts.length > 2 ? `${shown} +${parts.length - 2}` : shown;
@@ -73,6 +88,12 @@ export function matchProduct(product, profile) {
     if (!profile[label] || !product.skin[label]) return;
     const s = product.skin[label];
     checks.push({ label: `${label} skin`, pass: s.ok, hard: false, detail: s.note });
+  });
+
+  HAIR.forEach((label) => {
+    if (!profile[label] || !product.hair || !product.hair[label]) return;
+    const h = product.hair[label];
+    checks.push({ label, pass: h.ok, hard: false, detail: h.note });
   });
 
   const total = checks.reduce((n, c) => n + (c.hard ? 2 : 1), 0);
