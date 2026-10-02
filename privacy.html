@@ -17,55 +17,82 @@
   code { background: #EFEDE7; padding: 2px 6px; border-radius: 4px; font-size: 14px; }
   a { color: #15803D; }
   .box { background: #FFFFFF; border: 1px solid #E7E3DA; border-radius: 16px; padding: 20px 24px; margin: 24px 0; }
+  .warn { background: #FEF3C7; border: 1px solid #FDE68A; }
   footer { color: #78716C; font-size: 14px; margin-top: 48px; }
 </style>
 </head>
 <body>
 <main>
   <h1>Privacy Policy for Sach</h1>
-  <p class="updated">Last updated: October 1, 2026</p>
+  <p class="updated">Last updated: October 2, 2026</p>
 
   <div class="box">
-    <strong>In short:</strong> Sach doesn't have a server. Nothing you type, scan, photograph or record leaves your phone. There is no account, no analytics, and no ad tracking anywhere in the app.
+    <strong>In short:</strong> Your fit profile, scans, history, wishlist, photos and voice notes stay on your phone. If you sign in with Google and post a review or add a product, that review or product is saved on our server and <strong>anyone using Sach can read it</strong>. There are no ads and no analytics in the app.
   </div>
 
-  <h2>What the app stores, and where</h2>
-  <p>Everything Sach saves — your fit profile, your reviews, your recent checks, your wishlist, which reviews you marked helpful — is stored only in the app's local storage on your device. None of it is sent to us or to anyone else, because the app has no backend server to send it to.</p>
-
-  <h2>Camera</h2>
-  <p>Sach asks for camera access to:</p>
+  <h2>What stays on your device</h2>
+  <p>These are stored only in the app's local storage on your device and are not sent to us:</p>
   <ul>
-    <li>Scan a product's barcode, which is read and matched on your device — the photo frame itself is never saved or sent anywhere.</li>
-    <li>Take a photo to attach to a review you write. That photo is saved only on your device, as part of that review.</li>
+    <li>Your fit profile (the ingredients you avoid, values, and skin and hair conditions you select).</li>
+    <li>Your recent checks, wishlist, and which reviews you marked helpful.</li>
+    <li>The photos and voice notes you attach to a review. These are never uploaded, even when the written part of the review is shared.</li>
   </ul>
 
-  <h2>Photo library</h2>
-  <p>If you choose a photo from your gallery instead of the camera — to scan a barcode in an existing photo, or to attach a photo to a review — Sach reads only the photo you pick. It doesn't browse or access the rest of your library.</p>
+  <h2>What is shared when you sign in</h2>
+  <p>You can use Sach without an account. Signing in with Google is needed only to post a review or add a product for others. Sign-in is handled by Google and Firebase Authentication, which receive your Google account details (such as your name and email) to sign you in. Sach itself uses only your account's unique ID and your first name.</p>
 
-  <h2>Microphone</h2>
-  <p>Sach asks for microphone access only if you choose to record a voice note with a review. The recording is saved on your device as part of that review and is never uploaded.</p>
+  <p><strong>When you post a review</strong>, the following is saved in our database and is publicly readable by anyone using Sach:</p>
+  <ul>
+    <li>Your star rating, the tags you picked, and any written note.</li>
+    <li>Your first name and your account ID.</li>
+    <li>The items currently selected in your fit profile, such as skin or hair conditions (for example "Eczema-prone" or "Dandruff-prone") and ingredients you avoid. This is what lets other people find reviews from "people like me". Only select what you are comfortable sharing, because your selections are attached to each review you post.</li>
+    <li>When the review was posted.</li>
+  </ul>
+
+  <div class="box warn">
+    Skin and hair conditions can be sensitive health-related information. They are shared only if you are signed in, have them selected in your fit profile, and post a review. If you'd rather not share them, clear them in your fit profile before posting.
+  </div>
+
+  <p><strong>When you add a product</strong> that wasn't found, the barcode, brand, name, category, ingredient list you typed, and your account ID are saved and are publicly readable. Shared products are only ever shown as an answer to a scan or search, never as a browsable list.</p>
+
+  <h2>Where shared data is stored</h2>
+  <p>Shared reviews and products are stored in Google Firebase (Cloud Firestore), in Google's Mumbai, India region. Google, as our service provider, processes this data and receives standard connection information such as your IP address when the app connects to it.</p>
+
+  <h2>Product lookups</h2>
+  <p>When you scan a barcode or search a product name that isn't in Sach's built-in catalog, the barcode or search text is sent to <a href="https://world.openbeautyfacts.org">Open Beauty Facts</a>, an open, community-run database, to look the product up. No account details or fit profile are sent with that request. Open Beauty Facts data is available under the Open Database Licence.</p>
+
+  <h2>Camera, photo library and microphone</h2>
+  <ul>
+    <li><strong>Camera:</strong> used to scan a barcode (the camera frame is read on your device and not saved or sent) or to take a photo for a review (saved only on your device).</li>
+    <li><strong>Photo library:</strong> Sach reads only the photo you pick, to scan a barcode or attach to a review. It doesn't browse the rest of your library.</li>
+    <li><strong>Microphone:</strong> used only if you record a voice note for a review. The recording stays on your device.</li>
+  </ul>
 
   <h2>App updates</h2>
-  <p>Sach checks <a href="https://expo.dev">Expo's</a> update service to see if a newer version of the app is available, the same way most apps check for updates. That check doesn't send any of your personal data — no profile, no reviews, no photos.</p>
+  <p>Sach checks <a href="https://expo.dev">Expo's</a> update service to see if a newer version is available. That check doesn't send your profile, reviews or photos.</p>
 
-  <h2>Third parties</h2>
-  <p>Sach does not include any advertising, analytics or crash-reporting SDKs, and does not share data with any third party, because it doesn't collect any data to share.</p>
-
-  <h2>Children's privacy</h2>
-  <p>Sach is not directed at children and does not knowingly collect information from anyone, including children, since it does not collect information at all.</p>
+  <h2>Advertising, analytics and third parties</h2>
+  <p>Sach does not include advertising, analytics or crash-reporting tools, and does not sell your data. The only third parties involved are the ones named above: Google (sign-in and database hosting), Open Beauty Facts (product lookups) and Expo (updates).</p>
 
   <h2>Deleting your data</h2>
-  <p>Uninstalling the app deletes everything it stored, since all of it lived only on your device. There is nothing left on a server to separately delete.</p>
+  <ul>
+    <li><strong>On your device:</strong> uninstalling the app deletes everything stored locally.</li>
+    <li><strong>Shared reviews and products:</strong> the app can't delete these yet. To have your reviews, products or account data removed, email the address below from your Google account's email and we'll delete them.</li>
+  </ul>
+
+  <h2>Children's privacy</h2>
+  <p>Sach is not directed at children, and we do not knowingly collect information from children. If you believe a child has posted something, contact us and we will remove it.</p>
 
   <h2>Changes to this policy</h2>
-  <p>If what the app stores or asks permission for ever changes, this page will be updated, with the date above reflecting the most recent change.</p>
+  <p>If what the app collects or shares changes, this page will be updated and the date above will show the most recent change.</p>
 
   <h2>Contact</h2>
-  <p>Questions about this policy: <a href="mailto:sonipinkle@gmail.com">sonipinkle@gmail.com</a></p>
+  <p>Questions or deletion requests: <a href="mailto:sonipinkle@gmail.com">sonipinkle@gmail.com</a></p>
 
   <footer>
     Sach is developed by an individual developer, not a company.<br>
-    Source code: <a href="https://github.com/PinkleSoni/sach-app">github.com/PinkleSoni/sach-app</a>
+    Source code: <a href="https://github.com/PinkleSoni/sach-app">github.com/PinkleSoni/sach-app</a><br>
+    See also: <a href="terms.html">Terms of Service</a>
   </footer>
 </main>
 </body>
