@@ -55,7 +55,7 @@ export default function ProfileScreen({ navigation }) {
                   <Text style={s.accountSub}>
                     {configured
                       ? 'So people checking this product can see what you wrote, and you can see theirs'
-                      : 'Real Google sign-in isn’t connected yet — this is a placeholder so you can preview it'}
+                      : 'Google sign-in isn’t in the phone app yet — this placeholder lets you preview it'}
                   </Text>
                 </View>
                 <Btn label={configured ? 'Sign in with Google' : 'Try demo sign-in'} onPress={signIn} disabled={signingIn} style={[s.signIn, signingIn && { opacity: 0.6 }]}>
