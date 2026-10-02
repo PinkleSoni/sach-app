@@ -86,6 +86,7 @@ export default function ProfileScreen({ navigation }) {
           </View>
         ))}
         <Text style={s.note}>Your fit stays on this phone.</Text>
+        <Text style={s.disclaimer}>These filters are a guide to help you find products that fit your skin or hair, not a guarantee — always check the label, and see a dermatologist or trichologist for a real diagnosis.</Text>
         <Btn label="Replay the welcome tour" onPress={() => navigation.getParent()?.navigate('Welcome')} style={s.replay}>
           <Text style={s.replayText}>Replay the welcome tour</Text>
         </Btn>
@@ -122,6 +123,7 @@ const s = StyleSheet.create({
   legend: { fontFamily: fonts.bold, fontSize: 15, color: colors.forest },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   note: { marginTop: 24, fontFamily: fonts.regular, fontSize: 13, color: colors.muted },
+  disclaimer: { marginTop: 8, fontFamily: fonts.regular, fontSize: 12, lineHeight: 16, color: colors.muted },
   replay: { minHeight: 44, justifyContent: 'center' },
   replayText: { fontFamily: fonts.semibold, fontSize: 15, color: colors.green },
   footer: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 12, backgroundColor: colors.cream },
