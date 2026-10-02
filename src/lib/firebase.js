@@ -3,23 +3,19 @@
 // public in client apps; what actually protects data is the Firestore
 // Security Rules (see firestore.rules) and Google's own OAuth consent
 // screen, not hiding these values.
-//
-// TODO before this works: paste in the real values from a Firebase
-// project — console.firebase.google.com → Project settings → your app's
-// config. See README's "Accounts and shared reviews" section for the
-// exact steps.
+import { Platform } from 'react-native';
 import { initializeApp, getApps } from 'firebase/app';
-import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
+import { initializeAuth, getAuth, getReactNativePersistence } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const firebaseConfig = {
-  apiKey: 'REPLACE_WITH_FIREBASE_API_KEY',
-  authDomain: 'REPLACE_WITH_PROJECT_ID.firebaseapp.com',
-  projectId: 'REPLACE_WITH_PROJECT_ID',
-  storageBucket: 'REPLACE_WITH_PROJECT_ID.appspot.com',
-  messagingSenderId: 'REPLACE_WITH_SENDER_ID',
-  appId: 'REPLACE_WITH_APP_ID',
+  apiKey: 'AIzaSyDxvr7b81plUk_muZctdvR_SPf08D8RrWM',
+  authDomain: 'sach-7d177.firebaseapp.com',
+  projectId: 'sach-7d177',
+  storageBucket: 'sach-7d177.firebasestorage.app',
+  messagingSenderId: '221501369312',
+  appId: '1:221501369312:web:4efc001d22d92fc68a9985',
 };
 
 export const isFirebaseConfigured = firebaseConfig.apiKey !== 'REPLACE_WITH_FIREBASE_API_KEY';
@@ -28,10 +24,21 @@ export const isFirebaseConfigured = firebaseConfig.apiKey !== 'REPLACE_WITH_FIRE
 // during development), so guard against re-running them.
 const app = getApps()[0] || initializeApp(firebaseConfig);
 
+// getReactNativePersistence only exists in Firebase's native build, so web
+// uses the default (browser) persistence. On native, initializeAuth throws
+// if Fast Refresh runs it twice, so fall back to the existing instance.
 let authInstance = null;
 export function getFirebaseAuth() {
   if (!authInstance) {
-    authInstance = initializeAuth(app, { persistence: getReactNativePersistence(AsyncStorage) });
+    if (Platform.OS === 'web') {
+      authInstance = getAuth(app);
+    } else {
+      try {
+        authInstance = initializeAuth(app, { persistence: getReactNativePersistence(AsyncStorage) });
+      } catch {
+        authInstance = getAuth(app);
+      }
+    }
   }
   return authInstance;
 }

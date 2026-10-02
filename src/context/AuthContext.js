@@ -20,7 +20,7 @@ WebBrowser.maybeCompleteAuthSession();
 // by enabling Google sign-in in a Firebase project's Authentication tab).
 // Works for Expo Go (via Expo's auth proxy redirect) and standalone builds
 // alike — see the README's "Accounts and shared reviews" section.
-const GOOGLE_WEB_CLIENT_ID = 'REPLACE_WITH_GOOGLE_WEB_CLIENT_ID';
+const GOOGLE_WEB_CLIENT_ID = '221501369312-o1i990hfmivbepjja08224hn1d9najm4.apps.googleusercontent.com';
 
 const Ctx = createContext(null);
 export const useAuth = () => useContext(Ctx);
@@ -57,6 +57,7 @@ export function AuthProvider({ children }) {
       scopes: ['openid', 'profile', 'email'],
       redirectUri,
       responseType: ResponseType.IdToken,
+      usePKCE: false,
       extraParams: { nonce },
     },
     discovery
