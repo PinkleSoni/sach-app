@@ -46,10 +46,10 @@ The `exp://…` address in the terminal only works while the dev server is runni
 
 The live demo above is a web build — close, but it's not the real app (no live camera). The project is published with [EAS Update](https://docs.expo.dev/eas-update/getting-started/) under the `pinkle0402` Expo account, which gives a link that opens the real app in Expo Go, on a phone, without your computer running:
 
-1. Open [the latest update on expo.dev](https://expo.dev/accounts/pinkle0402/projects/sach/updates/8581f528-e461-4922-a42d-2b739f99e4b1) (sign in with the `pinkle0402` account) and use its **Open in Expo Go** button or QR code — this is the reliable way in, since that page builds the link for you.
+1. Open [the latest update on expo.dev](https://expo.dev/accounts/pinkle0402/projects/sach/updates/cf592ceb-9389-4a88-95ee-54fbdc7ffeb3) (sign in with the `pinkle0402` account) and use its **Open in Expo Go** button or QR code — this is the reliable way in, since that page builds the link for you.
 2. Or, in Expo Go, open the profile tab → **Enter URL manually**, and paste one of these manifest links directly:
-   - iOS: `https://u.expo.dev/update/01a0fb60-dc0b-76d4-af37-64b46f6cf26f`
-   - Android: `https://u.expo.dev/update/01a0fb60-dc0b-7e99-bd07-ff9efebe51b2`
+   - iOS: `https://u.expo.dev/update/01a0fb81-607a-7157-80f3-45871a1b15e9`
+   - Android: `https://u.expo.dev/update/01a0fb81-607a-7700-bcf0-82680417a2f7`
 
 Expo Go still needs to already be installed (see above), and the app's camera/barcode scanning work normally through this link since it's the real native app, not a web build.
 
@@ -75,7 +75,8 @@ GitHub Pages serves this repo from a sub-path (`/sach-app/`), so `app.json` need
 
 - Real: fit profile, match scoring, barcode scan (EAN-13/8, UPC-A/E), gallery barcode scan, name search, review chat with photos and voice notes, wishlist and recents. All data is stored on the device.
 - Demo: the product catalog (`src/data/catalog.js`) and sample reviews (`src/data/reviews.js`) are fictional. Replace `src/lib/catalog.js` lookups with a real product and ingredient API before public launch.
-- Not built yet: label (OCR) scanning, accounts and a shared review backend. Photos and voice notes are kept as temporary files on the phone.
+- Real-but-placeholder: sign-in and shared reviews are wired up (Google sign-in, Firestore), but fall back to a demo-mode account until a real Firebase project is connected — see `src/lib/firebase.js`.
+- Not built yet: label (OCR) scanning. Photos and voice notes are kept as temporary files on the phone.
 
 ## Ship checklist
 
