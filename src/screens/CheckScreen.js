@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, Linking, Text, TextInput, View, StyleSheet, ScrollView } from 'react-native';
+import { Alert, Image, Linking, Text, TextInput, View, StyleSheet, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useIsFocused } from '@react-navigation/native';
@@ -199,6 +199,7 @@ export default function CheckScreen({ navigation, route }) {
               const m = matchProduct(pr, p);
               return (
                 <Btn key={pr.id} label={`${pr.name}, ${m.score}% match`} onPress={() => open(pr)} style={s.row}>
+                  {pr.image ? <Image source={{ uri: pr.image }} style={s.rowImage} /> : <View style={s.rowImagePlaceholder} />}
                   <View style={{ flex: 1 }}>
                     <Text style={s.rowBrand}>{pr.brand}</Text>
                     <Text style={s.rowName} numberOfLines={2}>{pr.name}</Text>
@@ -293,7 +294,7 @@ function FoundCard({ product, profile, onOpen, onClose }) {
   const tone = bad ? colors.coralInk : colors.green;
   return (
     <Btn label={`Found ${product.name}. Open result`} onPress={onOpen} style={s.found}>
-      <View style={s.thumb} />
+      {product.image ? <Image source={{ uri: product.image }} style={s.thumb} /> : <View style={s.thumb} />}
       <View style={{ flex: 1, gap: 3 }}>
         <Text style={s.foundEyebrow}>Found it</Text>
         <Text style={s.foundName} numberOfLines={1}>{product.name}</Text>
@@ -338,6 +339,8 @@ const s = StyleSheet.create({
   searchInput: { flex: 1, minHeight: 48, fontFamily: fonts.medium, fontSize: 16, color: colors.forest },
   listLabel: { fontFamily: fonts.bold, fontSize: 12, letterSpacing: 0.7, textTransform: 'uppercase', color: '#A8A29E', marginTop: 4 },
   row: { minHeight: 64, flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 16, backgroundColor: colors.paper },
+  rowImage: { width: 44, height: 44, borderRadius: 10, backgroundColor: colors.sand },
+  rowImagePlaceholder: { width: 44, height: 44, borderRadius: 10, backgroundColor: colors.sand },
   rowBrand: { fontFamily: fonts.bold, fontSize: 12, letterSpacing: 0.5, textTransform: 'uppercase', color: colors.muted },
   rowName: { fontFamily: fonts.bold, fontSize: 16, color: colors.forest },
   rowScore: { fontFamily: fonts.bold, fontSize: 15 },

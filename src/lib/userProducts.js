@@ -36,6 +36,7 @@ export function buildUserProduct({ barcode, brand, name, category, ingredientsTe
     category: (category || '').trim() || 'Personal care',
     source: 'user',
     submittedBy: uid || null,
+    image: null, // no photo upload in this short form
     contains,
     is: {}, // vegan/cruelty-free/pregnancy-safe: not asked for in this short form, stays unknown
     skin: {},

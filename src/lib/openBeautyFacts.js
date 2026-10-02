@@ -62,6 +62,7 @@ function normalizeProduct(raw) {
     name: raw.product_name || raw.generic_name || 'Unnamed product',
     category: category.charAt(0).toUpperCase() + category.slice(1),
     source: 'openbeautyfacts',
+    image: raw.image_front_small_url || null,
     contains,
     is,
     skin: {}, // no fit-for-skin-type data exists for real, uncurated products
