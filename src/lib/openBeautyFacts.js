@@ -1,7 +1,6 @@
 // Open Beauty Facts: a free, open (ODbL-licensed), crowdsourced database of
 // real cosmetics products by barcode — https://world.openbeautyfacts.org.
-// No API key needed. Used as a fallback when a scanned or searched product
-// isn't in our own curated demo catalog (src/data/catalog.js).
+// No API key needed. The main source of product data for scans and searches.
 //
 // What it can and can't tell us:
 // - Ingredient lists, so "Keep these out" (fragrance, parabens, ...) checks
@@ -30,8 +29,8 @@ function matchAvoidKey(ing) {
   return matchAvoidKeyInText(`${ing.text || ''} ${ing.id || ''}`);
 }
 
-// Turns Open Beauty Facts' raw shape into the same product shape
-// src/data/catalog.js uses, so the rest of the app can't tell the two apart.
+// Turns Open Beauty Facts' raw shape into the product shape the rest of the
+// app uses, the same one a user-submitted product is built into.
 function normalizeProduct(raw) {
   const rawIngredients = Array.isArray(raw.ingredients) ? raw.ingredients : [];
   const ingredients = rawIngredients.slice(0, 40).map((ing) => {

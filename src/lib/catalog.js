@@ -1,12 +1,11 @@
-import { PRODUCTS } from '../data/catalog';
 import { fetchProductByBarcode, searchProductsByName } from './openBeautyFacts';
 import { buildUserProduct, fetchUserProductByBarcode, searchUserProducts, submitUserProduct } from './userProducts';
 
-// Products fetched from Open Beauty Facts at runtime, keyed by id, so a
-// barcode scan or name search for a real (non-demo) product can be looked
-// up again synchronously afterwards — by this screen, by History, by
-// Reviews — without re-fetching. Hydrated from AsyncStorage at startup and
-// added to as new products are found; see AppContext and lib/storage.js.
+// Every product this phone has found (from Open Beauty Facts or another
+// Sach user), keyed by id, so it can be looked up again synchronously — by
+// Result, History, Reviews — without re-fetching. Hydrated from AsyncStorage
+// at startup and added to as new products are found; see AppContext and
+// lib/storage.js.
 let fetchedCache = {};
 
 export function hydrateFetchedProducts(products) {
@@ -27,25 +26,18 @@ export function allFetchedProducts() {
 // Review, History, Reviews) depends on that, including plain
 // `recents.map(getProduct)` call sites.
 export function getProduct(id) {
-  return PRODUCTS.find((p) => p.id === id) || fetchedCache[id] || null;
+  return fetchedCache[id] || null;
 }
 
 function normalizeBarcode(code) {
   return String(code || '').replace(/\D/g, '');
 }
 
-function findLocalByBarcode(clean) {
-  // UPC-A scans arrive as 12 digits; our own catalog uses EAN-13 (leading 0).
-  return PRODUCTS.find((p) => p.barcode === clean || p.barcode === '0' + clean || p.barcode.replace(/^0/, '') === clean) || null;
-}
-
-// Async: checks our curated catalog first (instant), then Open Beauty
-// Facts, then finally other Sach users' own submissions for a barcode
-// nobody else has data on.
+// Async: this phone's own history first (instant), then Open Beauty Facts,
+// then finally other Sach users' own submissions for a barcode nobody else
+// has data on.
 export async function getProductByBarcode(code) {
   const clean = normalizeBarcode(code);
-  const local = findLocalByBarcode(clean);
-  if (local) return local;
   const cached = Object.values(fetchedCache).find((p) => normalizeBarcode(p.barcode) === clean);
   if (cached) return cached;
   const remote = await fetchProductByBarcode(clean);
@@ -54,26 +46,13 @@ export async function getProductByBarcode(code) {
   return rememberFetched(userSubmitted);
 }
 
-function searchLocal(query) {
-  const q = String(query || '').trim().toLowerCase();
-  if (!q) return [];
-  const words = q.split(/\s+/);
-  return PRODUCTS.filter((p) => {
-    const hay = `${p.brand} ${p.name} ${p.category}`.toLowerCase();
-    return words.every((w) => hay.includes(w));
-  });
-}
-
-// Async: local matches first (instant, and these have the richer curated
-// skin-fit and review data), then real products from Open Beauty Facts,
-// then other Sach users' own submissions. Only hits the network for a
-// query specific enough to be worth it.
+// Async: other Sach users' submissions, then Open Beauty Facts. Only hits
+// the network for a query specific enough to be worth it.
 export async function searchProducts(query) {
-  const local = searchLocal(query);
   const q = String(query || '').trim();
-  if (q.length < 3) return local;
+  if (q.length < 3) return [];
   const [obf, userSubmitted] = await Promise.all([searchProductsByName(q), searchUserProducts(q)]);
-  const seen = new Set(local.map((p) => p.id));
+  const seen = new Set();
   const extra = [];
   // Products people added in Sach come before the (much larger) Open Beauty
   // Facts matches, so a product you just added isn't buried at the bottom.
@@ -82,11 +61,13 @@ export async function searchProducts(query) {
     seen.add(p.id);
     extra.push(p);
   }
-  return [...local, ...extra];
+  return extra;
 }
 
+// Every product this phone has looked up so far, used for "better for you"
+// suggestions on the Result screen.
 export function allProducts() {
-  return PRODUCTS;
+  return Object.values(fetchedCache);
 }
 
 // Saves a product someone fills in by hand after a scan/search came up

@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useEffect, useMemo, useState, useCallback } from 'react';
 import * as storage from '../lib/storage';
-import { SEED_REVIEWS } from '../data/reviews';
 import { hydrateFetchedProducts, allFetchedProducts, getProduct } from '../lib/catalog';
 import { fetchSharedReviews } from '../lib/sharedReviews';
 
@@ -84,7 +83,7 @@ export function AppProvider({ children }) {
     (productId) => {
       const mine = new Set(myReviews.map((r) => r.id));
       const shared = (remoteReviews[productId] || []).filter((r) => !mine.has(r.localId));
-      return [...myReviews, ...shared, ...SEED_REVIEWS].filter((r) => r.productId === productId);
+      return [...myReviews, ...shared].filter((r) => r.productId === productId);
     },
     [myReviews, remoteReviews]
   );

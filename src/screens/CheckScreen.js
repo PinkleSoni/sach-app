@@ -9,7 +9,7 @@ import * as Haptics from 'expo-haptics';
 import Svg, { Path } from 'react-native-svg';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
-import { getProductByBarcode, searchProducts, allProducts } from '../lib/catalog';
+import { getProductByBarcode, searchProducts } from '../lib/catalog';
 import { matchProduct, profileSummary } from '../lib/match';
 import { Btn } from '../components/ui';
 import Icon from '../components/Icon';
@@ -36,7 +36,7 @@ export default function CheckScreen({ navigation, route }) {
   const [notice, setNotice] = useState('');
   const [query, setQuery] = useState('');
   const [looking, setLooking] = useState(false); // a barcode lookup is in flight
-  const [nameResults, setNameResults] = useState(() => allProducts());
+  const [nameResults, setNameResults] = useState([]);
   const [searching, setSearching] = useState(false); // a name search is in flight
   // True from the very first render when we arrived here to auto-open the
   // gallery (Home's "Upload photo"), so the live camera never mounts and
@@ -90,14 +90,14 @@ export default function CheckScreen({ navigation, route }) {
     if (route.params?.mode) setMode(route.params.mode);
   }, [route.params?.mode]);
 
-  // Name search: local catalog first (instant), then — for a query specific
-  // enough to be worth a network call — real products from Open Beauty
-  // Facts too. Debounced so it doesn't fire on every keystroke.
+  // Name search: shared products and Open Beauty Facts, for a query specific
+  // enough to be worth a network call. Debounced so it doesn't fire on every
+  // keystroke.
   useEffect(() => {
     if (mode !== 'Name') return undefined;
     const q = query.trim();
     if (!q) {
-      setNameResults(allProducts());
+      setNameResults([]);
       setSearching(false);
       return undefined;
     }
@@ -194,7 +194,7 @@ export default function CheckScreen({ navigation, route }) {
             />
           </View>
           <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ gap: 8, paddingBottom: 16 }}>
-            <Text style={s.listLabel}>{searching ? 'Searching…' : query.trim() ? `${nameResults.length} found` : 'Try one of these'}</Text>
+            <Text style={s.listLabel}>{searching ? 'Searching…' : query.trim() ? `${nameResults.length} found` : 'Type a product name to search'}</Text>
             {nameResults.map((pr) => {
               const m = matchProduct(pr, p);
               return (
@@ -208,7 +208,7 @@ export default function CheckScreen({ navigation, route }) {
                 </Btn>
               );
             })}
-            {!nameResults.length && !searching && (
+            {!nameResults.length && !searching && !!query.trim() && (
               <View style={{ gap: 10 }}>
                 <Text style={s.empty}>Nothing matched. Try fewer words, or scan the barcode.</Text>
                 <Btn label="Add this product" onPress={() => goAddProduct()} style={s.addProductLink}>

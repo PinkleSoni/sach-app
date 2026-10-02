@@ -5,7 +5,7 @@ Built from the V2 design canvas: welcome and set-your-fit onboarding, a Home scr
 
 ## [Try the live demo →](https://pinklesoni.github.io/sach-app/)
 
-A web build of the app, published from the `gh-pages` branch on every manual deploy (see below). Onboarding, Search name, match results, reviews and the review chat all work. The live camera and barcode scan need a phone — they aren't validated in a desktop browser, so use **Search name** on the demo to try a product (`Kesar Ceramide Gel Moisturiser` is a good one to try first). Your fit profile and reviews are saved in that browser only.
+A web build of the app, published from the `gh-pages` branch on every manual deploy (see below). Onboarding, Search name, match results, reviews and the review chat all work. The live camera and barcode scan need a phone — they aren't validated in a desktop browser, so use **Search name** on the demo to try a product (try `Himalaya`). Your fit profile is saved in that browser only.
 
 <p>
   <img src="docs/screenshots/1-welcome.png" width="180" alt="Welcome screen">
@@ -71,12 +71,13 @@ npx expo export --platform web --output-dir dist
 
 GitHub Pages serves this repo from a sub-path (`/sach-app/`), so `app.json` needs a temporary `"experiments": { "baseUrl": "/sach-app" }` for this one export — add it, export, then remove it again before committing `app.json` (it would otherwise break the iOS/Android builds, which load assets from the app bundle, not a URL). Then publish `dist/`'s contents to the root of `gh-pages` and push.
 
-## What is real and what is demo
+## Where the data comes from
 
-- Real: fit profile, match scoring, barcode scan (EAN-13/8, UPC-A/E), gallery barcode scan, name search, review chat with photos and voice notes, wishlist and recents. All data is stored on the device.
-- Demo: the product catalog (`src/data/catalog.js`) and sample reviews (`src/data/reviews.js`) are fictional. Replace `src/lib/catalog.js` lookups with a real product and ingredient API before public launch.
-- Real-but-placeholder: sign-in and shared reviews are wired up (Google sign-in, Firestore), but fall back to a demo-mode account until a real Firebase project is connected — see `src/lib/firebase.js`.
-- Not built yet: label (OCR) scanning. Photos and voice notes are kept as temporary files on the phone.
+- Products: [Open Beauty Facts](https://world.openbeautyfacts.org) (open, crowdsourced) plus products that Sach users add themselves, shared through Firestore. There is no built-in sample catalog, and no sample reviews.
+- Reviews: written in the app. Signed-in users' reviews are shared through Firestore; photos and voice notes stay on the device.
+- Sign-in: Google sign-in through Firebase Auth. It works on web and in an installed Android build, not in Expo Go (which keeps a labelled demo sign-in).
+- Skin and hair conditions: only apply to products that carry fit notes for them. Products from Open Beauty Facts don't, so for those only the ingredient and values checks count.
+- Not built yet: label (OCR) scanning.
 
 ## Ship checklist
 
