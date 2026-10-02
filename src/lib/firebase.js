@@ -22,7 +22,7 @@ export const isFirebaseConfigured = firebaseConfig.apiKey !== 'REPLACE_WITH_FIRE
 
 // initializeApp/initializeAuth throw if called twice (e.g. on Fast Refresh
 // during development), so guard against re-running them.
-const app = getApps()[0] || initializeApp(firebaseConfig);
+export const app = getApps()[0] || initializeApp(firebaseConfig);
 
 // getReactNativePersistence only exists in Firebase's native build, so web
 // uses the default (browser) persistence. On native, initializeAuth throws

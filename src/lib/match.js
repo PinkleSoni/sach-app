@@ -48,16 +48,22 @@ export function profileSummary(profile) {
   return parts.length > 2 ? `${shown} +${parts.length - 2}` : shown;
 }
 
+// A product with no ingredient list isn't "clean", it's unknown. (Products
+// cached before ingredientsKnown existed are recognised by their placeholder.)
+export function hasUsableIngredients(product) {
+  if (product.ingredientsKnown === false) return false;
+  const list = product.ingredients || [];
+  return !(list.length === 1 && /^No ingredients? /.test(list[0].name));
+}
+
 // Returns { score, verdict, checks, dealbreakers }.
 // Hard checks (keep-out and must-be) weigh 2, skin checks weigh 1.
 // A failed hard check is a dealbreaker and caps the score below 70.
 export function matchProduct(product, profile) {
   const checks = [];
-  // A product with no ingredient list isn't "clean", it's unknown. Its
-  // keep-out checks are skipped (and reported) instead of passing.
-  // (Products cached before ingredientsKnown existed are recognised by their placeholder.)
-  const ingredientsKnown =
-    product.ingredientsKnown !== false && !(product.ingredients.length === 1 && /^No ingredients? /.test(product.ingredients[0].name));
+  // Without an ingredient list the keep-out checks are skipped (and
+  // reported) instead of passing.
+  const ingredientsKnown = hasUsableIngredients(product);
   const skipped = [];
 
   Object.entries(AVOID_KEYS).forEach(([label, key]) => {
@@ -113,12 +119,14 @@ export function matchProduct(product, profile) {
   if (dealbreakers.length) score = Math.min(score, 69);
   // Part of what you asked for couldn't be checked, so it can't read as a clean "good".
   if (skipped.length) score = Math.min(score, 84);
+  // A list found online (not typed from the pack) can still be the wrong variant.
+  if (product.ingredientsUnverified && total > 0) score = Math.min(score, 84);
 
   let verdict = 'Good for you';
   if (dealbreakers.length) verdict = 'Not for you';
   else if (score < 85) verdict = 'Mixed fit';
 
-  return { score, verdict, checks, dealbreakers, hasProfile: total > 0, ingredientsKnown, skipped, cantCheck: total === 0 && skipped.length > 0 };
+  return { score, verdict, checks, dealbreakers, hasProfile: total > 0, ingredientsKnown, unverified: !!product.ingredientsUnverified, skipped, cantCheck: total === 0 && skipped.length > 0 };
 }
 
 const NO_LIST = 'We don’t have a usable ingredient list for this product, so we can’t check it against what you keep out. Read the pack to be sure.';
@@ -131,7 +139,8 @@ export function verdictLine(m) {
     const base = checked === 'Everything you asked for checks out.' ? 'Everything we could check fits.' : checked;
     return `${base} We couldn’t check ${m.skipped.map((x) => x.toLowerCase()).join(', ')}: no usable ingredient list on file.`;
   }
-  return verdictLineChecked(m);
+  const base = verdictLineChecked(m);
+  return m.unverified ? `${base} Ingredients were found online and not verified.` : base;
 }
 
 function verdictLineChecked(m) {

@@ -19,6 +19,34 @@ service cloud.firestore {
                     && resource.data.userId == request.auth.uid;
     }
 
+    // Ingredient lists a user types in from the pack for a product that had
+    // none (doc id = barcode). Anyone can read; only the person who added a
+    // list can change or remove it.
+    match /ingredientLists/{barcode} {
+      allow read: if true;
+      allow create: if request.auth != null
+                    && request.resource.data.submittedBy == request.auth.uid
+                    && request.resource.data.barcode == barcode
+                    && request.resource.data.ingredientsText is string
+                    && request.resource.data.ingredientsText.size() >= 10
+                    && request.resource.data.ingredientsText.size() <= 5000;
+      allow update: if request.auth != null
+                    && resource.data.submittedBy == request.auth.uid
+                    && request.resource.data.submittedBy == request.auth.uid
+                    && request.resource.data.barcode == barcode
+                    && request.resource.data.ingredientsText is string
+                    && request.resource.data.ingredientsText.size() >= 10
+                    && request.resource.data.ingredientsText.size() <= 5000;
+      allow delete: if request.auth != null && resource.data.submittedBy == request.auth.uid;
+    }
+
+    // Ingredient lists found online by the lookup function. Written only by
+    // the server (the admin SDK bypasses these rules), never by the app.
+    match /webIngredientLists/{barcode} {
+      allow read: if true;
+      allow write: if false;
+    }
+
     // Products a user fills in by hand when a scan/search finds nothing —
     // shared with anyone who later scans or searches for the same thing.
     // Doc id is the barcode, so a create is really "first person to add

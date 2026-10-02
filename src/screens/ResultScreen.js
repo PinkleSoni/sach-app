@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Image, Linking, ScrollView, Share, Text, View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
+import { WEB_LOOKUP_ENABLED, lookupOnline } from '../lib/ingredientSources';
 import { getProduct, allProducts } from '../lib/catalog';
 import { matchProduct, verdictLine, relevantIngredients, isLikeMe, summariseReviews, durationMonths } from '../lib/match';
 import { Btn, Eyebrow, Pill } from '../components/ui';
@@ -17,9 +19,27 @@ const VERDICT = {
 
 export default function ResultScreen({ route, navigation }) {
   const insets = useSafeAreaInsets();
-  const { profile, reviewsFor, loadRemoteReviews, wishlist, toggleWishlist, helpful, toggleHelpful, addRecent } = useApp();
+  const { profile, reviewsFor, loadRemoteReviews, refreshIngredients, applyIngredientList, wishlist, toggleWishlist, helpful, toggleHelpful, addRecent } = useApp();
+  const { user } = useAuth();
+  const [lookup, setLookup] = useState('idle'); // idle | loading | notfound | limited | error
   const product = getProduct(route.params.productId);
   useEffect(() => { loadRemoteReviews(product.id); }, [product.id, loadRemoteReviews]);
+  useEffect(() => { refreshIngredients(product.id); }, [product.id, refreshIngredients]);
+
+  const findOnline = async () => {
+    setLookup('loading');
+    try {
+      const r = await lookupOnline(product);
+      if (r.status === 'found') {
+        applyIngredientList(product.id, { source: 'web', text: r.text, url: r.sourceUrl, title: r.sourceTitle });
+        setLookup('idle');
+      } else {
+        setLookup(r.status === 'rate_limited' ? 'limited' : 'notfound');
+      }
+    } catch {
+      setLookup('error');
+    }
+  };
   const p = profile || {};
   const [tab, setTab] = useState('like');
   const [allIngredients, setAllIngredients] = useState(false);
@@ -122,6 +142,38 @@ export default function ResultScreen({ route, navigation }) {
               ))}
             </View>
           </View>
+
+          {!m.ingredientsKnown && (
+            <View style={s.helpCard}>
+              <Text style={s.helpTitle}>No ingredient list for this product yet</Text>
+              <Text style={s.helpBody}>You can fill it in from the pack, and everyone who checks it next will benefit.</Text>
+              <Btn label="Add the ingredients from the pack" onPress={() => navigation.navigate('AddIngredients', { productId: product.id })} style={s.helpBtn}>
+                <Text style={s.helpBtnText}>Add them from the pack</Text>
+              </Btn>
+              {WEB_LOOKUP_ENABLED && user && !user.isDemo && (
+                <Btn label="Find the ingredients online" onPress={findOnline} disabled={lookup === 'loading'} style={[s.helpBtnAlt, lookup === 'loading' && { opacity: 0.6 }]}>
+                  <Text style={s.helpBtnAltText}>{lookup === 'loading' ? 'Searching the web…' : 'Find them online'}</Text>
+                </Btn>
+              )}
+              {WEB_LOOKUP_ENABLED && !(user && !user.isDemo) && <Text style={s.helpHint}>Sign in from the My fit tab to look this up online.</Text>}
+              {lookup === 'notfound' && <Text style={s.helpHint}>We couldn’t find a reliable ingredient list online for this product.</Text>}
+              {lookup === 'limited' && <Text style={s.helpHint}>You’ve used today’s online lookups. Try again tomorrow, or add them from the pack.</Text>}
+              {lookup === 'error' && <Text style={s.helpHint}>The online lookup isn’t available right now.</Text>}
+            </View>
+          )}
+          {m.ingredientsKnown && product.ingredientsSource === 'web' && (
+            <View style={s.helpCard}>
+              <Text style={s.helpTitle}>Ingredients found online, not verified</Text>
+              <Text style={s.helpBody}>This list came from a web page and may be a different version of the product. Check it against the pack.</Text>
+              {/^https?:\/\//.test(product.ingredientsSourceUrl || '') && (
+                <Btn label="Open the source page" onPress={() => Linking.openURL(product.ingredientsSourceUrl)} style={s.helpLink}><Text style={s.helpLinkText}>View the source</Text></Btn>
+              )}
+              <Btn label="Correct the ingredients from the pack" onPress={() => navigation.navigate('AddIngredients', { productId: product.id })} style={s.helpBtnAlt}>
+                <Text style={s.helpBtnAltText}>Correct them from the pack</Text>
+              </Btn>
+            </View>
+          )}
+          {m.ingredientsKnown && product.ingredientsSource === 'user' && <Text style={s.helpHint}>Ingredients added by a Sach user from the pack.</Text>}
 
           <View style={{ gap: 12 }}>
             <Text style={s.h2} accessibilityRole="header">Ingredients that matter to you</Text>
@@ -261,6 +313,16 @@ const s = StyleSheet.create({
   score: { fontFamily: fonts.display, fontSize: 34, letterSpacing: -0.6, color: colors.cream },
   scoreLabel: { fontFamily: fonts.semibold, fontSize: 12, color: colors.cream, opacity: 0.8 },
   verdictLine: { fontFamily: fonts.semibold, fontSize: 17, lineHeight: 23, color: colors.cream },
+  helpCard: { gap: 10, padding: 16, borderRadius: 18, backgroundColor: colors.sand },
+  helpTitle: { fontFamily: fonts.bold, fontSize: 16, color: colors.forest },
+  helpBody: { fontFamily: fonts.regular, fontSize: 14, lineHeight: 20, color: colors.forest },
+  helpHint: { fontFamily: fonts.regular, fontSize: 13, lineHeight: 18, color: colors.muted },
+  helpBtn: { minHeight: 48, borderRadius: 14, backgroundColor: colors.green, alignItems: 'center', justifyContent: 'center' },
+  helpBtnText: { fontFamily: fonts.bold, fontSize: 15, color: colors.paper },
+  helpBtnAlt: { minHeight: 48, borderRadius: 14, borderWidth: 1.5, borderColor: colors.sandDark, backgroundColor: colors.paper, alignItems: 'center', justifyContent: 'center' },
+  helpBtnAltText: { fontFamily: fonts.bold, fontSize: 15, color: colors.forest },
+  helpLink: { minHeight: 44, justifyContent: 'center' },
+  helpLinkText: { fontFamily: fonts.semibold, fontSize: 15, color: colors.green },
   setFit: { minHeight: 48, borderRadius: 14, backgroundColor: colors.amber, alignItems: 'center', justifyContent: 'center' },
   setFitText: { fontFamily: fonts.bold, fontSize: 15, color: colors.forest },
   checks: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },

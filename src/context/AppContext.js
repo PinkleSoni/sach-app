@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useState, useCallback } from 'react';
 import * as storage from '../lib/storage';
-import { hydrateFetchedProducts, allFetchedProducts, getProduct } from '../lib/catalog';
+import { hydrateFetchedProducts, allFetchedProducts, getProduct, enrichIngredients, setProductIngredients } from '../lib/catalog';
+import { hasUsableIngredients } from '../lib/match';
 import { fetchSharedReviews } from '../lib/sharedReviews';
 
 const Ctx = createContext(null);
@@ -14,6 +15,8 @@ export function AppProvider({ children }) {
   const [wishlist, setWishlist] = useState([]);
   const [helpful, setHelpful] = useState([]);
   const [remoteReviews, setRemoteReviews] = useState({});
+  // Bumped when a cached product changes (e.g. gains an ingredient list) so screens re-read it.
+  const [productsVersion, setProductsVersion] = useState(0);
 
   useEffect(() => {
     storage.loadAll().then((s) => {
@@ -71,6 +74,24 @@ export function AppProvider({ children }) {
     });
   }, []);
 
+  const productChanged = useCallback(() => {
+    storage.saveFetchedProducts(allFetchedProducts());
+    setProductsVersion((v) => v + 1);
+  }, []);
+
+  // Pulls in an ingredient list other people added (or the server found) for a product without one.
+  const refreshIngredients = useCallback(async (productId) => {
+    const product = getProduct(productId);
+    if (!product || hasUsableIngredients(product)) return;
+    const updated = await enrichIngredients(product);
+    if (updated !== product) productChanged();
+  }, [productChanged]);
+
+  // found = { source: 'user' | 'web', text, url? }
+  const applyIngredientList = useCallback((productId, found) => {
+    if (setProductIngredients(productId, found)) productChanged();
+  }, [productChanged]);
+
   const loadRemoteReviews = useCallback((productId) => {
     return fetchSharedReviews(productId)
       .then((list) => setRemoteReviews((prev) => ({ ...prev, [productId]: list })))
@@ -89,8 +110,8 @@ export function AppProvider({ children }) {
   );
 
   const value = useMemo(
-    () => ({ ready, profile, setProfile, myReviews, recents, addRecent, addReview, wishlist, toggleWishlist, helpful, toggleHelpful, reviewsFor, loadRemoteReviews }),
-    [ready, profile, setProfile, myReviews, recents, addRecent, addReview, wishlist, toggleWishlist, helpful, toggleHelpful, reviewsFor, loadRemoteReviews]
+    () => ({ ready, profile, setProfile, myReviews, recents, addRecent, addReview, wishlist, toggleWishlist, helpful, toggleHelpful, reviewsFor, loadRemoteReviews, refreshIngredients, applyIngredientList, productsVersion }),
+    [ready, profile, setProfile, myReviews, recents, addRecent, addReview, wishlist, toggleWishlist, helpful, toggleHelpful, reviewsFor, loadRemoteReviews, refreshIngredients, applyIngredientList, productsVersion]
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

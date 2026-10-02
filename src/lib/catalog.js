@@ -1,5 +1,7 @@
 import { fetchProductByBarcode, searchProductsByName } from './openBeautyFacts';
 import { buildUserProduct, fetchUserProductByBarcode, searchUserProducts, submitUserProduct } from './userProducts';
+import { applyIngredients, fetchSharedIngredients, normalizeBarcode } from './ingredientSources';
+import { hasUsableIngredients } from './match';
 
 // Every product this phone has found (from Open Beauty Facts or another
 // Sach user), keyed by id, so it can be looked up again synchronously — by
@@ -29,8 +31,19 @@ export function getProduct(id) {
   return fetchedCache[id] || null;
 }
 
-function normalizeBarcode(code) {
-  return String(code || '').replace(/\D/g, '');
+// Fills in a missing ingredient list from what other people have added (or
+// the server found online) for the same barcode.
+export async function enrichIngredients(product) {
+  if (!product || hasUsableIngredients(product) || !product.barcode) return product;
+  const found = await fetchSharedIngredients(normalizeBarcode(product.barcode));
+  return found ? rememberFetched(applyIngredients(product, found)) : product;
+}
+
+// Applies a list directly (typed by the user, or found online) to a product
+// this phone already knows about.
+export function setProductIngredients(productId, found) {
+  const product = fetchedCache[productId];
+  return product ? rememberFetched(applyIngredients(product, found)) : null;
 }
 
 // Async: this phone's own history first (instant), then Open Beauty Facts,
@@ -41,7 +54,7 @@ export async function getProductByBarcode(code) {
   const cached = Object.values(fetchedCache).find((p) => normalizeBarcode(p.barcode) === clean);
   if (cached) return cached;
   const remote = await fetchProductByBarcode(clean);
-  if (remote) return rememberFetched(remote);
+  if (remote) return rememberFetched(await enrichIngredients(remote));
   const userSubmitted = await fetchUserProductByBarcode(clean);
   return rememberFetched(userSubmitted);
 }
@@ -61,7 +74,7 @@ export async function searchProducts(query) {
     seen.add(p.id);
     extra.push(p);
   }
-  return extra;
+  return Promise.all(extra.map(enrichIngredients));
 }
 
 // Every product this phone has looked up so far, used for "better for you"

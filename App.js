@@ -25,6 +25,7 @@ import ResultScreen from './src/screens/ResultScreen';
 import ReviewScreen from './src/screens/ReviewScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import AddProductScreen from './src/screens/AddProductScreen';
+import AddIngredientsScreen from './src/screens/AddIngredientsScreen';
 import { colors } from './src/theme';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -57,6 +58,7 @@ function Root() {
         <Stack.Screen name="Result" component={ResultScreen} />
         <Stack.Screen name="Review" component={ReviewScreen} />
         <Stack.Screen name="AddProduct" component={AddProductScreen} />
+        <Stack.Screen name="AddIngredients" component={AddIngredientsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
