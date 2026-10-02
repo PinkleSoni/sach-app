@@ -84,7 +84,11 @@ function normalizeProduct(raw) {
 
 async function obfFetch(url) {
   const res = await fetch(url, { headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' } });
-  if (!res.ok) throw new Error(`Open Beauty Facts: HTTP ${res.status}`);
+  if (!res.ok) {
+    const err = new Error(`Open Beauty Facts: HTTP ${res.status}`);
+    err.busy = res.status === 429 || res.status === 503;
+    throw err;
+  }
   return res.json();
 }
 
@@ -98,15 +102,18 @@ export async function fetchProductByBarcode(barcode) {
   }
 }
 
+// Resolves to { items, busy }. busy is true when Open Beauty Facts is
+// rate-limiting us, so the screen can say so instead of showing "no results".
 export async function searchProductsByName(query) {
   try {
-    const url = `${BASE}/cgi/search.pl?search_terms=${encodeURIComponent(query)}&json=true&page_size=8&fields=${PRODUCT_FIELDS}`;
+    const url = `${BASE}/cgi/search.pl?search_terms=${encodeURIComponent(query)}&json=true&page_size=10&fields=${PRODUCT_FIELDS}`;
     const json = await obfFetch(url);
     const products = Array.isArray(json.products) ? json.products : [];
-    return products
-      .filter((p) => p.code && (p.product_name || p.generic_name))
-      .map(normalizeProduct);
-  } catch {
-    return [];
+    return {
+      items: products.filter((p) => p.code && (p.product_name || p.generic_name)).map(normalizeProduct),
+      busy: false,
+    };
+  } catch (e) {
+    return { items: [], busy: !!e.busy };
   }
 }

@@ -53,6 +53,7 @@ export function buildUserProduct({ barcode, brand, name, category, ingredientsTe
 // product source — this function only needs to handle the shared half.
 export async function submitUserProduct(product) {
   if (!isFirebaseConfigured) return;
+  listCache.at = 0; // so the new product shows up in the next search
   await setDoc(doc(db, COLLECTION, product.barcode), {
     ...product,
     nameLower: product.name.toLowerCase(),
@@ -73,20 +74,36 @@ export async function fetchUserProductByBarcode(barcode) {
 }
 
 // Firestore has no substring search, and this collection is expected to
-// stay small (a personal/demo-scale app's worth of user contributions),
-// so this fetches a capped batch and filters the same way the local demo
-// catalog does, rather than reaching for a dedicated search service.
+// stay small, so the capped list is fetched once and filtered on the phone.
+// It's cached for a minute, so typing in the search box costs one read
+// batch, not one per keystroke.
+const LIST_TTL_MS = 60000;
+let listCache = { at: 0, docs: [], pending: null };
+
+async function loadSharedProducts() {
+  if (Date.now() - listCache.at < LIST_TTL_MS) return listCache.docs;
+  if (!listCache.pending) {
+    listCache.pending = getDocs(query(collection(db, COLLECTION), orderBy('createdAt', 'desc'), limit(MAX_LISTED)))
+      .then((snap) => {
+        listCache = { at: Date.now(), docs: snap.docs.map((d) => d.data()), pending: null };
+        return listCache.docs;
+      })
+      .catch((e) => {
+        listCache.pending = null;
+        throw e;
+      });
+  }
+  return listCache.pending;
+}
+
 export async function searchUserProducts(q) {
   if (!isFirebaseConfigured) return [];
   try {
-    const snap = await getDocs(query(collection(db, COLLECTION), orderBy('createdAt', 'desc'), limit(MAX_LISTED)));
     const words = q.toLowerCase().trim().split(/\s+/);
-    return snap.docs
-      .map((d) => d.data())
-      .filter((p) => {
-        const hay = `${p.brand} ${p.name} ${p.category}`.toLowerCase();
-        return words.every((w) => hay.includes(w));
-      });
+    return (await loadSharedProducts()).filter((p) => {
+      const hay = `${p.brand} ${p.name} ${p.category}`.toLowerCase();
+      return words.every((w) => hay.includes(w));
+    });
   } catch {
     return [];
   }

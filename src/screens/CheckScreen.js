@@ -37,7 +37,10 @@ export default function CheckScreen({ navigation, route }) {
   const [query, setQuery] = useState('');
   const [looking, setLooking] = useState(false); // a barcode lookup is in flight
   const [nameResults, setNameResults] = useState([]);
-  const [searching, setSearching] = useState(false); // a name search is in flight
+  const [searching, setSearching] = useState(false); // more results may still arrive
+  const [searchBusy, setSearchBusy] = useState(false); // Open Beauty Facts is rate-limiting us
+  const [forceTick, setForceTick] = useState(0);
+  const forceNext = useRef(false);
   // True from the very first render when we arrived here to auto-open the
   // gallery (Home's "Upload photo"), so the live camera never mounts and
   // fights the gallery picker for the camera hardware at the same time.
@@ -90,31 +93,40 @@ export default function CheckScreen({ navigation, route }) {
     if (route.params?.mode) setMode(route.params.mode);
   }, [route.params?.mode]);
 
-  // Name search: shared products and Open Beauty Facts, for a query specific
-  // enough to be worth a network call. Debounced so it doesn't fire on every
-  // keystroke.
+  // Live name search. Results update on every keystroke from what's already
+  // on this phone and from shared products; Open Beauty Facts is asked after
+  // a pause, within its rate limit (see searchProducts). Pressing search
+  // skips the pause.
   useEffect(() => {
     if (mode !== 'Name') return undefined;
     const q = query.trim();
-    if (!q) {
+    if (q.length < 2) {
       setNameResults([]);
       setSearching(false);
+      setSearchBusy(false);
       return undefined;
     }
     let cancelled = false;
+    const force = forceNext.current;
+    forceNext.current = false;
     setSearching(true);
     const t = setTimeout(async () => {
-      const results = await searchProducts(q);
-      if (!cancelled) {
-        setNameResults(results);
-        setSearching(false);
-      }
-    }, 350);
+      await searchProducts(q, {
+        force,
+        isCancelled: () => cancelled,
+        onUpdate: (items, info) => {
+          setNameResults(items);
+          setSearching(info.pending);
+          setSearchBusy(info.busy);
+        },
+      });
+      if (!cancelled) setSearching(false);
+    }, force ? 0 : 150);
     return () => {
       cancelled = true;
       clearTimeout(t);
     };
-  }, [query, mode]);
+  }, [query, mode, forceTick]);
 
   useEffect(() => {
     if (route.params?.autoGallery) {
@@ -189,12 +201,14 @@ export default function CheckScreen({ navigation, route }) {
               placeholderTextColor={colors.muted}
               autoCorrect={false}
               returnKeyType="search"
+              onSubmitEditing={() => { forceNext.current = true; setForceTick((n) => n + 1); }}
               accessibilityLabel="Search by product name"
               style={s.searchInput}
             />
           </View>
           <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ gap: 8, paddingBottom: 16 }}>
-            <Text style={s.listLabel}>{searching ? 'Searching…' : query.trim() ? `${nameResults.length} found` : 'Type a product name to search'}</Text>
+            <Text style={s.listLabel}>{query.trim().length < 2 ? 'Type a product name to search' : searching ? (nameResults.length ? `${nameResults.length} found · searching Open Beauty Facts…` : 'Searching…') : `${nameResults.length} found`}</Text>
+            {searchBusy && <Text style={s.empty}>Open Beauty Facts is limiting searches for a moment. Wait a few seconds and press search to try again.</Text>}
             {nameResults.map((pr) => {
               const m = matchProduct(pr, p);
               return (
@@ -208,7 +222,7 @@ export default function CheckScreen({ navigation, route }) {
                 </Btn>
               );
             })}
-            {!nameResults.length && !searching && !!query.trim() && (
+            {!nameResults.length && !searching && !searchBusy && query.trim().length >= 2 && (
               <View style={{ gap: 10 }}>
                 <Text style={s.empty}>Nothing matched. Try fewer words, or scan the barcode.</Text>
                 <Btn label="Add this product" onPress={() => goAddProduct()} style={s.addProductLink}>
