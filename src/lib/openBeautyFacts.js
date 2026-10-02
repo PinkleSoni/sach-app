@@ -13,11 +13,11 @@
 // Coverage is crowdsourced and skews toward European-market products; a
 // barcode not being found here doesn't mean the product doesn't exist.
 
-import { matchAvoidKeyInText, titleCase } from './ingredientMatch';
+import { looksNonVegan, matchAvoidKeyInText, titleCase } from './ingredientMatch';
 
 const BASE = 'https://world.openbeautyfacts.org';
 const USER_AGENT = 'Sach/1.0 (github.com/PinkleSoni/sach-app)';
-const PRODUCT_FIELDS = 'code,product_name,generic_name,brands,categories,ingredients,image_front_small_url';
+const PRODUCT_FIELDS = 'code,product_name,generic_name,brands,categories,ingredients,ingredients_text,image_front_small_url';
 
 function ingredientName(ing) {
   // OBF ingredient text is often the raw label, sometimes shouting case.
@@ -32,7 +32,11 @@ function matchAvoidKey(ing) {
 // Turns Open Beauty Facts' raw shape into the product shape the rest of the
 // app uses, the same one a user-submitted product is built into.
 function normalizeProduct(raw) {
-  const rawIngredients = Array.isArray(raw.ingredients) ? raw.ingredients : [];
+  let rawIngredients = Array.isArray(raw.ingredients) ? raw.ingredients : [];
+  // Occasionally the label text exists but OBF hasn't parsed it into a list.
+  if (!rawIngredients.length && (raw.ingredients_text || '').trim()) {
+    rawIngredients = raw.ingredients_text.split(/[,;\n]/).map((t) => ({ text: t.trim() })).filter((i) => i.text);
+  }
   const ingredients = rawIngredients.slice(0, 40).map((ing) => {
     const avoid = matchAvoidKey(ing);
     return { name: ingredientName(ing), note: avoid ? 'Flagged from the ingredient label' : '', avoid: avoid || undefined };
@@ -43,16 +47,21 @@ function normalizeProduct(raw) {
 
   // Vegan only when every ingredient is explicitly tagged vegan — anything
   // else (including "no data") stays unknown, never guessed as true/false.
-  const veganTags = rawIngredients.map((i) => i.vegan).filter(Boolean);
+  // One known non-vegan ingredient is enough to say it isn't vegan, from
+  // either Open Beauty Facts' own tag or our own name check.
+  const veganTags = rawIngredients.map((i) => i.vegan);
   const is = {};
-  if (veganTags.length && veganTags.length === rawIngredients.length) {
-    is.vegan = veganTags.every((v) => v === 'yes');
+  if (veganTags.some((v) => v === 'no') || rawIngredients.some((i) => looksNonVegan(i.text || i.id))) {
+    is.vegan = false;
+  } else if (veganTags.length && veganTags.every((v) => v === 'yes' || v === 'en:yes')) {
+    is.vegan = true;
   }
   // crueltyFree and pregnancySafe: intentionally left unset (unknown) —
   // there's no ingredient-level signal for either.
 
   const brand = (raw.brands || '').split(',')[0].trim() || 'Unknown brand';
-  const category = (raw.categories || '').split(',')[0].replace(/^(en|fr):/, '').trim() || 'Personal care';
+  const firstCategory = (raw.categories || '').split(',')[0].replace(/^(en|fr):/, '').trim();
+  const category = /incorrect|unknown/i.test(firstCategory) ? 'Personal care' : firstCategory || 'Personal care';
 
   return {
     id: `obf:${raw.code}`,
@@ -65,6 +74,10 @@ function normalizeProduct(raw) {
     contains,
     is,
     skin: {}, // no fit-for-skin-type data exists for real, uncurated products
+    // About half of Open Beauty Facts products have no ingredient list, and
+    // lists of 1-2 items are nearly always OCR junk ("50g", "many"). That
+    // means unknown, not clean, so matching skips the keep-out checks.
+    ingredientsKnown: ingredients.length >= 3,
     ingredients: ingredients.length ? ingredients : [{ name: 'No ingredient list on file', note: '' }],
   };
 }

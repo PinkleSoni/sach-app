@@ -53,9 +53,19 @@ export function profileSummary(profile) {
 // A failed hard check is a dealbreaker and caps the score below 70.
 export function matchProduct(product, profile) {
   const checks = [];
+  // A product with no ingredient list isn't "clean", it's unknown. Its
+  // keep-out checks are skipped (and reported) instead of passing.
+  // (Products cached before ingredientsKnown existed are recognised by their placeholder.)
+  const ingredientsKnown =
+    product.ingredientsKnown !== false && !(product.ingredients.length === 1 && /^No ingredients? /.test(product.ingredients[0].name));
+  const skipped = [];
 
   Object.entries(AVOID_KEYS).forEach(([label, key]) => {
     if (!profile[label]) return;
+    if (!ingredientsKnown) {
+      skipped.push(label);
+      return;
+    }
     const has = !!product.contains[key];
     const ing = product.ingredients.find((i) => i.avoid === key);
     checks.push({
@@ -101,16 +111,30 @@ export function matchProduct(product, profile) {
   const dealbreakers = checks.filter((c) => c.hard && !c.pass);
   let score = total ? Math.round((100 * got) / total) : 100;
   if (dealbreakers.length) score = Math.min(score, 69);
+  // Part of what you asked for couldn't be checked, so it can't read as a clean "good".
+  if (skipped.length) score = Math.min(score, 84);
 
   let verdict = 'Good for you';
   if (dealbreakers.length) verdict = 'Not for you';
   else if (score < 85) verdict = 'Mixed fit';
 
-  return { score, verdict, checks, dealbreakers, hasProfile: total > 0 };
+  return { score, verdict, checks, dealbreakers, hasProfile: total > 0, ingredientsKnown, skipped, cantCheck: total === 0 && skipped.length > 0 };
 }
 
+const NO_LIST = 'We don’t have a usable ingredient list for this product, so we can’t check it against what you keep out. Read the pack to be sure.';
+
 export function verdictLine(m) {
+  if (m.cantCheck) return NO_LIST;
   if (!m.hasProfile) return 'Set your fit so we can check this against you.';
+  if (m.skipped.length) {
+    const checked = verdictLineChecked(m);
+    const base = checked === 'Everything you asked for checks out.' ? 'Everything we could check fits.' : checked;
+    return `${base} We couldn’t check ${m.skipped.map((x) => x.toLowerCase()).join(', ')}: no usable ingredient list on file.`;
+  }
+  return verdictLineChecked(m);
+}
+
+function verdictLineChecked(m) {
   if (m.dealbreakers.length) {
     const items = m.dealbreakers.map((d) => d.item);
     const list = items.length > 1 ? `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}` : items[0];

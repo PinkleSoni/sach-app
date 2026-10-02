@@ -198,7 +198,7 @@ export default function CheckScreen({ navigation, route }) {
             {nameResults.map((pr) => {
               const m = matchProduct(pr, p);
               return (
-                <Btn key={pr.id} label={`${pr.name}, ${m.score}% match`} onPress={() => open(pr)} style={s.row}>
+                <Btn key={pr.id} label={`${pr.name}${m.hasProfile ? `, ${m.score}% match` : ''}`} onPress={() => open(pr)} style={s.row}>
                   {pr.image ? <Image source={{ uri: pr.image }} style={s.rowImage} /> : <View style={s.rowImagePlaceholder} />}
                   <View style={{ flex: 1 }}>
                     <Text style={s.rowBrand}>{pr.brand}</Text>
@@ -306,7 +306,7 @@ function FoundCard({ product, profile, onOpen, onClose }) {
             </Text>
           </View>
         ) : (
-          <Text style={s.foundSub}>Set your fit to see a match</Text>
+          <Text style={s.foundSub}>{m.cantCheck ? 'No usable ingredient list' : 'Set your fit to see a match'}</Text>
         )}
       </View>
       <Icon name="chevron" color={colors.forest} />

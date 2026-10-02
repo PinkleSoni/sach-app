@@ -36,7 +36,7 @@ export default function ResultScreen({ route, navigation }) {
       allProducts()
         .filter((x) => x.id !== product.id && x.category === product.category)
         .map((x) => ({ product: x, m: matchProduct(x, p) }))
-        .filter((x) => !x.m.dealbreakers.length && x.m.score > m.score)
+        .filter((x) => x.m.hasProfile && !x.m.skipped.length && !x.m.dealbreakers.length && x.m.score > m.score)
         .sort((a, b) => b.m.score - a.m.score)
         .slice(0, 5),
     [product, p, m.score]
@@ -105,7 +105,7 @@ export default function ResultScreen({ route, navigation }) {
                 <Text style={s.verdictLine}>{verdictLine(m)}</Text>
               </View>
             </View>
-            {!m.hasProfile && (
+            {!m.hasProfile && !m.cantCheck && (
               <Btn label="Set your fit" onPress={() => navigation.popTo('Tabs', { screen: 'Fit' })} style={s.setFit}>
                 <Text style={s.setFitText}>Set your fit</Text>
               </Btn>
@@ -136,7 +136,7 @@ export default function ResultScreen({ route, navigation }) {
                   {ing.tone !== 'plain' && <Text style={[s.ingTag, { color: ing.tone === 'avoid' ? colors.coralInk : colors.green }]}>{ing.tone === 'avoid' ? 'Avoid' : 'Good for you'}</Text>}
                 </View>
               ))}
-              {!allIngredients && !ingredients.length && <Text style={[s.ingNote, { padding: 16 }]}>Nothing here conflicts with your fit.</Text>}
+              {!allIngredients && !ingredients.length && <Text style={[s.ingNote, { padding: 16 }]}>{m.ingredientsKnown ? 'Nothing here conflicts with your fit.' : 'No usable ingredient list on file for this product.'}</Text>}
               <Btn label={allIngredients ? 'Show fewer ingredients' : `See all ${product.ingredients.length} ingredients`} onPress={() => setAllIngredients((v) => !v)} style={[s.seeAll, s.rowTop]}>
                 <Text style={s.link}>{allIngredients ? 'Show fewer' : `See all ${product.ingredients.length} ingredients`}</Text>
               </Btn>

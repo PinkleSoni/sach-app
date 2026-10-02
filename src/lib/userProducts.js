@@ -10,7 +10,7 @@
 // Open Beauty Facts product uses.
 import { collection, doc, getDoc, getDocs, limit, orderBy, query, serverTimestamp, setDoc } from 'firebase/firestore';
 import { db, isFirebaseConfigured } from './firebase';
-import { buildIngredients } from './ingredientMatch';
+import { buildIngredients, looksNonVegan } from './ingredientMatch';
 
 const COLLECTION = 'userProducts';
 // One submission per barcode (doc id = barcode): resubmitting the same
@@ -38,8 +38,11 @@ export function buildUserProduct({ barcode, brand, name, category, ingredientsTe
     submittedBy: uid || null,
     image: null, // no photo upload in this short form
     contains,
-    is: {}, // vegan/cruelty-free/pregnancy-safe: not asked for in this short form, stays unknown
+    // Cruelty-free and pregnancy-safe aren't asked for, so stay unknown. Vegan
+    // can only be shown false, from clearly animal-derived ingredients.
+    is: names.some(looksNonVegan) ? { vegan: false } : {},
     skin: {},
+    ingredientsKnown: ingredients.length > 0,
     ingredients: ingredients.length ? ingredients : [{ name: 'No ingredients listed', note: '' }],
   };
 }
