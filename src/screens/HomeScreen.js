@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { AccessibilityInfo, Animated, Easing, ScrollView, Text, View, StyleSheet } from 'react-native';
+import { AccessibilityInfo, Animated, Easing, Image, ScrollView, Text, View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
 import { useApp } from '../context/AppContext';
@@ -120,7 +120,7 @@ export default function HomeScreen({ navigation }) {
 
         {toReview && (
           <Btn label={`Review ${toReview.name}`} onPress={() => navigation.navigate('Review', { productId: toReview.id })} style={s.nudge}>
-            <View style={s.nudgeThumb} />
+            {toReview.image ? <Image source={{ uri: toReview.image }} style={s.nudgeThumb} /> : <View style={s.nudgeThumb} />}
             <Text style={s.nudgeText} numberOfLines={2}>
               <Text style={{ fontFamily: fonts.bold }}>Used {toReview.name}?</Text> Review it in 3 taps.
             </Text>

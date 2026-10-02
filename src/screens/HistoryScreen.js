@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, Text, View, StyleSheet } from 'react-native';
+import { Image, ScrollView, Text, View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../context/AppContext';
 import { getProduct } from '../lib/catalog';
@@ -12,6 +12,7 @@ export function ProductRow({ product, profile, onPress }) {
   const bad = m.dealbreakers.length > 0;
   return (
     <Btn label={`${product.name}${m.hasProfile ? `, ${m.score}% match` : ''}`} onPress={onPress} style={s.row}>
+      {product.image ? <Image source={{ uri: product.image }} style={s.rowImage} /> : <View style={s.rowImage} />}
       <View style={{ flex: 1 }}>
         <Text style={s.brand}>{product.brand}</Text>
         <Text style={s.name} numberOfLines={2}>{product.name}</Text>
@@ -52,6 +53,7 @@ const s = StyleSheet.create({
   scroll: { padding: 20, gap: 10, paddingBottom: 24 },
   label: { fontFamily: fonts.bold, fontSize: 12, letterSpacing: 0.7, textTransform: 'uppercase', color: colors.muted },
   row: { minHeight: 64, flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 16, backgroundColor: colors.paper, borderWidth: 1, borderColor: colors.line },
+  rowImage: { width: 44, height: 44, borderRadius: 10, backgroundColor: colors.sand },
   brand: { fontFamily: fonts.bold, fontSize: 12, letterSpacing: 0.5, textTransform: 'uppercase', color: colors.muted },
   name: { fontFamily: fonts.bold, fontSize: 16, color: colors.forest },
   score: { fontFamily: fonts.bold, fontSize: 15 },
