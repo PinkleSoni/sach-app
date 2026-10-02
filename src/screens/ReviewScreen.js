@@ -91,7 +91,9 @@ export default function ReviewScreen({ route, navigation }) {
       mine: true,
     };
     addReview(review);
-    submitSharedReview(review, user).then(() => loadRemoteReviews(product.id)).catch(() => {});
+    submitSharedReview(review, user)
+      .then(() => loadRemoteReviews(product.id))
+      .catch((e) => console.warn('Sharing the review failed:', e?.code, e?.message));
     setSent(true);
   };
 
