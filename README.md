@@ -46,10 +46,10 @@ The `exp://…` address in the terminal only works while the dev server is runni
 
 The live demo above is a web build — close, but it's not the real app (no live camera). The project is published with [EAS Update](https://docs.expo.dev/eas-update/getting-started/) under the `pinkle0402` Expo account, which gives a link that opens the real app in Expo Go, on a phone, without your computer running:
 
-1. Open [the latest update on expo.dev](https://expo.dev/accounts/pinkle0402/projects/sach/updates/cf592ceb-9389-4a88-95ee-54fbdc7ffeb3) (sign in with the `pinkle0402` account) and use its **Open in Expo Go** button or QR code — this is the reliable way in, since that page builds the link for you.
+1. Open [the latest update on expo.dev](https://expo.dev/accounts/pinkle0402/projects/sach/updates/fc9d441e-c3d6-4a15-824e-b98dc2f37118) (sign in with the `pinkle0402` account) and use its **Open in Expo Go** button or QR code — this is the reliable way in, since that page builds the link for you.
 2. Or, in Expo Go, open the profile tab → **Enter URL manually**, and paste one of these manifest links directly:
-   - iOS: `https://u.expo.dev/update/01a0fb81-607a-7157-80f3-45871a1b15e9`
-   - Android: `https://u.expo.dev/update/01a0fb81-607a-7700-bcf0-82680417a2f7`
+   - iOS: `https://u.expo.dev/update/01a0fd82-7f3c-752f-aecd-42f32d70a581`
+   - Android: `https://u.expo.dev/update/01a0fd82-7f3c-7c07-b047-53764b266049`
 
 Expo Go still needs to already be installed (see above), and the app's camera/barcode scanning work normally through this link since it's the real native app, not a web build.
 
