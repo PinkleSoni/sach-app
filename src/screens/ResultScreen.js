@@ -3,7 +3,7 @@ import { Image, Linking, ScrollView, Share, Text, View, StyleSheet } from 'react
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
-import { WEB_LOOKUP_ENABLED, googleSearchUrl, lookupOnline } from '../lib/ingredientSources';
+import { WEB_LOOKUP_ENABLED, googleSearchUrl, lookupOnline, openBeautyFactsAddUrl } from '../lib/ingredientSources';
 import { getProduct, allProducts } from '../lib/catalog';
 import { matchProduct, verdictLine, relevantIngredients, isLikeMe, summariseReviews, durationMonths } from '../lib/match';
 import { Btn, Eyebrow, Pill } from '../components/ui';
@@ -51,15 +51,17 @@ export default function ResultScreen({ route, navigation }) {
     () => product.ingredients.map((i) => ingredients.find((x) => x.name === i.name) || { name: i.name, note: i.note, tone: 'plain' }),
     [product, ingredients]
   );
+  // Suggestions only make sense when this product could be checked, and only
+  // among products of the same specific kind (not the generic fallback category).
   const alternatives = useMemo(
     () =>
-      allProducts()
+      (!m.hasProfile || product.category === 'Personal care' ? [] : allProducts())
         .filter((x) => x.id !== product.id && x.category === product.category)
         .map((x) => ({ product: x, m: matchProduct(x, p) }))
         .filter((x) => x.m.hasProfile && !x.m.skipped.length && !x.m.dealbreakers.length && x.m.score > m.score)
         .sort((a, b) => b.m.score - a.m.score)
         .slice(0, 5),
-    [product, p, m.score]
+    [product, p, m.score, m.hasProfile]
   );
 
   const mineKeys = Object.keys(p).filter((k) => p[k]);
@@ -153,6 +155,14 @@ export default function ResultScreen({ route, navigation }) {
               <Btn label="Search Google for the ingredients" onPress={() => Linking.openURL(googleSearchUrl(product))} style={s.helpBtnAlt}>
                 <Text style={s.helpBtnAltText}>Search Google for them</Text>
               </Btn>
+              {!!openBeautyFactsAddUrl(product.barcode) && (
+                <>
+                  <Btn label="Add this product to Open Beauty Facts" onPress={() => Linking.openURL(openBeautyFactsAddUrl(product.barcode))} style={s.helpBtnAlt}>
+                    <Text style={s.helpBtnAltText}>Add it to Open Beauty Facts</Text>
+                  </Btn>
+                  <Text style={s.helpHint}>Open Beauty Facts is the free, open database Sach reads from. Adding photos and ingredients there helps everyone who uses it. It needs a free account on their site.</Text>
+                </>
+              )}
               {WEB_LOOKUP_ENABLED && user && !user.isDemo && (
                 <Btn label="Find the ingredients online" onPress={findOnline} disabled={lookup === 'loading'} style={[s.helpBtnAlt, lookup === 'loading' && { opacity: 0.6 }]}>
                   <Text style={s.helpBtnAltText}>{lookup === 'loading' ? 'Searching the web…' : 'Find them online'}</Text>

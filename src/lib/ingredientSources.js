@@ -20,6 +20,13 @@ export function googleSearchUrl(product) {
   return `https://www.google.com/search?q=${encodeURIComponent(`${brand} ${product.name} ingredients`.trim())}`;
 }
 
+// Open Beauty Facts' own page for adding or completing a product by barcode
+// (photos, ingredients). Free, but needs an account there.
+export function openBeautyFactsAddUrl(barcode) {
+  const code = normalizeBarcode(barcode);
+  return /^\d{8,14}$/.test(code) ? `https://world.openbeautyfacts.org/cgi/product.pl?type=search_or_add&code=${code}` : null;
+}
+
 export function parseIngredientText(text) {
   return String(text || '')
     .replace(/^\s*ingredients?\s*[:\-]?\s*/i, '')
