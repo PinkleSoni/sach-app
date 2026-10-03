@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, Text, View, StyleSheet } from 'react-native';
+import { Image, ScrollView, Text, View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../context/AppContext';
 import { getProduct } from '../lib/catalog';
@@ -23,6 +23,7 @@ export default function ReviewsScreen({ navigation }) {
             <Eyebrow>Used it? Review in 3 taps</Eyebrow>
             {waiting.map((p) => (
               <Btn key={p.id} label={`Review ${p.name}`} onPress={() => navigation.navigate('Review', { productId: p.id })} style={s.row}>
+                {p.image ? <Image source={{ uri: p.image }} style={s.rowImage} /> : <View style={s.rowImage} />}
                 <View style={{ flex: 1 }}>
                   <Text style={s.brand}>{p.brand}</Text>
                   <Text style={s.name} numberOfLines={2}>{p.name}</Text>
@@ -40,7 +41,8 @@ export default function ReviewsScreen({ navigation }) {
             return (
               <View key={r.id} style={s.card}>
                 <Btn label={`Open ${p?.name}`} onPress={() => navigation.navigate('Result', { productId: r.productId })} style={{ gap: 4 }}>
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 8 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                    {p?.image ? <Image source={{ uri: p.image }} style={s.rowImage} /> : <View style={s.rowImage} />}
                     <Text style={[s.name, { flex: 1 }]} numberOfLines={2}>{p?.name || 'Product'}</Text>
                     <Text style={s.rating}>{r.rating}/5</Text>
                   </View>
@@ -67,6 +69,7 @@ const s = StyleSheet.create({
   title: { fontFamily: fonts.display, fontSize: 28, letterSpacing: -0.4, color: colors.forest, paddingHorizontal: 20 },
   scroll: { padding: 20, gap: 22, paddingBottom: 24 },
   row: { minHeight: 64, flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 16, backgroundColor: colors.paper, borderWidth: 1, borderColor: colors.line },
+  rowImage: { width: 44, height: 44, borderRadius: 10, backgroundColor: colors.sand },
   brand: { fontFamily: fonts.bold, fontSize: 12, letterSpacing: 0.5, textTransform: 'uppercase', color: colors.muted },
   name: { fontFamily: fonts.bold, fontSize: 16, color: colors.forest },
   card: { padding: 16, gap: 10, borderRadius: 20, backgroundColor: colors.paper, borderWidth: 1, borderColor: colors.line },

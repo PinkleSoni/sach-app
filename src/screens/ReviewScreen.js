@@ -102,7 +102,7 @@ export default function ReviewScreen({ route, navigation }) {
       {focused && <StatusBar style="light" />}
       <View style={[s.header, { paddingTop: insets.top + 6 }]}>
         <Btn label="Back" onPress={() => navigation.goBack()} style={s.headBtn}><Icon name="back" color={colors.cream} /></Btn>
-        <View style={s.thumb} />
+        {product.image ? <Image source={{ uri: product.image }} style={s.thumb} /> : <View style={s.thumb} />}
         <View style={{ flex: 1, gap: 2 }}>
           <Text style={s.headTitle} numberOfLines={1}>{product.name}</Text>
           <Text style={s.headSub}>Your review · {sent ? 'posted' : `tap ${step} of 3`}</Text>
