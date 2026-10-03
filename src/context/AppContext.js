@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState, useCallback } from 'react';
 import * as storage from '../lib/storage';
-import { hydrateFetchedProducts, allFetchedProducts, getProduct, enrichIngredients, setProductIngredients } from '../lib/catalog';
+import { hydrateFetchedProducts, allFetchedProducts, getProduct, enrichIngredients, refreshFromOpenBeautyFacts, setProductIngredients } from '../lib/catalog';
 import { hasUsableIngredients } from '../lib/match';
 import { fetchSharedReviews } from '../lib/sharedReviews';
 
@@ -81,10 +81,17 @@ export function AppProvider({ children }) {
 
   // Pulls in an ingredient list other people added (or the server found) for a product without one.
   const refreshIngredients = useCallback(async (productId) => {
-    const product = getProduct(productId);
-    if (!product || hasUsableIngredients(product)) return;
-    const updated = await enrichIngredients(product);
-    if (updated !== product) productChanged();
+    let product = getProduct(productId);
+    if (!product) return;
+    // Open Beauty Facts may have been completed since this was saved.
+    const fromObf = await refreshFromOpenBeautyFacts(product);
+    product = fromObf.product;
+    let changed = fromObf.changed;
+    if (!hasUsableIngredients(product)) {
+      const updated = await enrichIngredients(product);
+      changed = changed || updated !== product;
+    }
+    if (changed) productChanged();
   }, [productChanged]);
 
   // found = { source: 'user' | 'web', text, url? }

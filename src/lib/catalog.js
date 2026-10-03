@@ -20,6 +20,38 @@ function rememberFetched(product) {
   return product;
 }
 
+// Newer data from Open Beauty Facts replaces the saved copy, except that an
+// ingredient list someone typed in (or found online) is kept when Open Beauty
+// Facts still has no usable list of its own.
+function rememberFresh(fresh) {
+  const old = fetchedCache[fresh.id];
+  if (old && old.ingredientsSource && !hasUsableIngredients(fresh)) {
+    return rememberFetched({
+      ...fresh,
+      ingredients: old.ingredients,
+      contains: old.contains,
+      is: old.is,
+      ingredientsKnown: true,
+      ingredientsSource: old.ingredientsSource,
+      ingredientsSourceUrl: old.ingredientsSourceUrl,
+      ingredientsUnverified: old.ingredientsUnverified,
+    });
+  }
+  return rememberFetched(fresh);
+}
+
+// A product saved from Open Beauty Facts that was missing its ingredients or
+// photo may have been completed there since. Asks again and updates the saved
+// copy; resolves to the product, and `changed` says whether anything improved.
+export async function refreshFromOpenBeautyFacts(product) {
+  if (!product || product.source !== 'openbeautyfacts' || !product.barcode) return { product, changed: false };
+  if (hasUsableIngredients(product) && product.image) return { product, changed: false };
+  const fresh = await fetchProductByBarcode(normalizeBarcode(product.barcode));
+  if (!fresh) return { product, changed: false };
+  const better = (hasUsableIngredients(fresh) && !hasUsableIngredients(product)) || (fresh.image && !product.image);
+  return better ? { product: rememberFresh(fresh), changed: true } : { product, changed: false };
+}
+
 export function allFetchedProducts() {
   return Object.values(fetchedCache);
 }
@@ -52,9 +84,12 @@ export function setProductIngredients(productId, found) {
 export async function getProductByBarcode(code) {
   const clean = normalizeBarcode(code);
   const cached = Object.values(fetchedCache).find((p) => normalizeBarcode(p.barcode) === clean);
-  if (cached) return cached;
+  if (cached) {
+    const { product } = await refreshFromOpenBeautyFacts(cached);
+    return product;
+  }
   const remote = await fetchProductByBarcode(clean);
-  if (remote) return rememberFetched(await enrichIngredients(remote));
+  if (remote) return rememberFresh(await enrichIngredients(remote));
   const userSubmitted = await fetchUserProductByBarcode(clean);
   return rememberFetched(userSubmitted);
 }
@@ -111,7 +146,7 @@ export async function searchProducts(query, { onUpdate, isCancelled = () => fals
   if (q.length < 2) return;
   const words = q.toLowerCase().split(/\s+/);
   const emit = (items, info) => {
-    if (!isCancelled()) onUpdate?.(rank(uniqueById(items), q), info);
+    if (!isCancelled()) onUpdate?.(rank(uniqueById(items.map((p) => fetchedCache[p.id] || p)), q), info);
   };
 
   const known = Object.values(fetchedCache).filter((p) => matchesWords(p, words));
@@ -136,7 +171,7 @@ export async function searchProducts(query, { onUpdate, isCancelled = () => fals
       if (isCancelled()) return;
       busy = res.busy;
       if (!res.busy) {
-        obf = res.items.map(rememberFetched);
+        obf = res.items.map(rememberFresh);
         obfCache.set(key, obf);
         if (obfCache.size > 30) obfCache.delete(obfCache.keys().next().value);
       }

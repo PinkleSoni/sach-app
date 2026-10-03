@@ -33,6 +33,7 @@ export default function ReviewScreen({ route, navigation }) {
   const [photos, setPhotos] = useState([]);
   const [note, setNote] = useState('');
   const [sent, setSent] = useState(false);
+  const [shareState, setShareState] = useState('local'); // local | sharing | shared | failed
   const [voice, setVoice] = useState(null); // { uri, seconds }
   const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
   const rec = useAudioRecorderState(recorder);
@@ -91,9 +92,20 @@ export default function ReviewScreen({ route, navigation }) {
       mine: true,
     };
     addReview(review);
-    submitSharedReview(review, user)
-      .then(() => loadRemoteReviews(product.id))
-      .catch((e) => console.warn('Sharing the review failed:', e?.code, e?.message));
+    if (user && !user.isDemo) {
+      setShareState('sharing');
+      submitSharedReview(review, user)
+        .then(() => {
+          setShareState('shared');
+          return loadRemoteReviews(product.id);
+        })
+        .catch((e) => {
+          setShareState('failed');
+          console.warn('Sharing the review failed:', e?.code, e?.message);
+        });
+    } else {
+      setShareState('local');
+    }
     setSent(true);
   };
 
@@ -168,7 +180,12 @@ export default function ReviewScreen({ route, navigation }) {
 
         {sent && (
           <View style={[s.bubble, { backgroundColor: colors.greenTint, maxWidth: 290 }]}>
-            <Text style={s.bubbleText}><Text style={{ fontFamily: fonts.bold }}>Posted. Thank you.</Text> People with your skin who check this product will see your review first.</Text>
+            <Text style={s.bubbleText}>
+              {shareState === 'shared' && <><Text style={{ fontFamily: fonts.bold }}>Posted. Thank you.</Text> People with your skin who check this product will see your review first.</>}
+              {shareState === 'sharing' && <Text style={{ fontFamily: fonts.bold }}>Posting…</Text>}
+              {shareState === 'failed' && <><Text style={{ fontFamily: fonts.bold }}>Saved on this phone.</Text> We couldn’t share it just now, so others can’t see it yet.</>}
+              {shareState === 'local' && <><Text style={{ fontFamily: fonts.bold }}>Saved on this phone only.</Text> Sign in from the My fit tab to share your reviews with everyone.</>}
+            </Text>
           </View>
         )}
       </ScrollView>
